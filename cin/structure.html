@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Memory Allocation for Structure</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Memory Allocation for Structure</h1><br>
+<div class="contentText"><p class="contentPara">If we create an object of some structure, then compiler allocate contiguous memory for the data members of the structure. The size of allocated memory is at least the sum of sizes of all data members. The compiler can use padding and in that case there is will be unused space created between two data members. The padding is done for the alignment of data member which makes the access to the member faster. However you can control the padding behavior and can stop compiler to generated extra space.<br /> The data members of structure is accessed with the help of the base address of the structure and the offset of the data member in the structure object.</p>Lets see this in an example.<br /> C code:<br /><pre class="code">struct data_struct
+{
+    int a;
+    int b;
+};
+struct data_struct global_data;
+int main()
+{
+    struct data_struct local_data;
+    global_data.a = 10;
+    global_data.b = 15;
+    local_data.a = 25;
+    local_data.b = 20;
+    return 0;
+}
+</pre>
+Generated assembly code:
+<pre class="assemblycode">    .comm   global_data,8,4
+    .text
+.globl main
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $16, %esp
+    movl    $10, global_data
+    movl    $15, global_data+4
+    movl    $25, -8(%ebp)
+    movl    $20, -4(%ebp)
+    movl    $0, %eax
+    leave
+    ret
+</pre>
+Offset of data members of the structure
+<pre class="freeText">a ==&gt; 0
+b ==&gt; 4
+</pre>
+The members of global_data are accessed as:
+<pre class="freeText">global_data.a ==&gt; global_data+0 or simply global_data
+global_data.b ==&gt; global_data+4
+</pre>
+Similarly the local_data member will be accessed as
+<pre class="freeText">local_data.a ==&gt; -8(%ebp)
+local_data.b ==&gt; -4(%ebp)
+</pre>
+<br />The local_data is allocated on the stack on the memory range -8(%ebp) to (%ebp)<br /> Goto <a href="memorymanagement.html">here</a> for details of local variables allocation.<br /><br /><span class="boldText">Structure and padding</span><br /><p class="contentPara">The compiler often allocate some empty space between two members of a structure to make the accessing the each member faster. This is called padding. The size of alignment is mostly dependent in processor architecture.</p>Lets take and example
+<pre class="code">struct data_struct
+{
+    char a;
+    int b;
+};
+</pre>
+<p class="contentPara">If we get the size of the structure using sizeof operator on i386, it will come to 8. But the sizeof(char) is one and sizeof(int) is 4 so total of 5 bytes are required but the compiler allocated 8 bytes. Actually it allocated 4 bytes for the char member too.</p>Now declare the structure as:
+<pre class="code">struct data_struct
+{
+	char a;
+	int b;
+} __attribute__((packed));
+</pre>
+<p class="contentPara">Then sizeof(struct data_struct) on i386 will come to 5. The __attribute__((packed)) has forced compiler not to do padding and waste space. This attribute can be also applied on individual data member of the struct.</p>For example:-
+<pre class="code">struct data_struct
+{
+    char a;
+    int b __attribute__((packed));
+};
+</pre>
+<p class="contentPara">This declaration says do not do padding between data member a and b. The __attribute__ can be also used to increase the alignment boundary. Look the compiler documentation for details on this.</p><span class="boldText">Function returning structure</span><br /><p class="contentPara">We have seen previously that the the function returns through eax register for basic data types. But structure can not be returned by eax register because the the size of eax register is only 4 bytes but the structure can be any size. To return structure, compiler can use different strategies.</p>Lets see how gcc works with an example:<br /> The C code:
+<pre class="code">struct data_struct
+{
+    int a;
+    int b;
+} ;
+struct data_struct fun()
+{
+    struct data_struct data;
+    data.a = 20;
+    data.b = 25;
+    return data;
+}
+int main()
+{
+    struct data_struct data = fun();
+    return 0;
+}
+</pre>
+Generated assembly code:
+<pre class="assemblycode">    .text
+.globl fun
+fun:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $16, %esp
+    movl    8(%ebp), %ecx
+    movl    $20, -8(%ebp)
+    movl    $25, -4(%ebp)
+    movl    -8(%ebp), %eax
+    movl    -4(%ebp), %edx
+    movl    %eax, (%ecx)
+    movl    %edx, 4(%ecx)
+    movl    %ecx, %eax
+    leave
+    ret	$4
+.globl main
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $20, %esp
+    leal    -8(%ebp), %eax
+    movl    %eax, (%esp)
+    call    fun
+    subl    $4, %esp
+    movl    $0, %eax
+    leave
+    ret
+</pre>
+We can re-write the equivalent C code of the generated assembly code. This code will look like:-
+<pre class="code">void fun(struct data_struct *ptr)
+{
+    struct data_struct data;
+    data.a = 20;
+    data.b = 25;
+    ptr-&gt;a = data.a;
+    ptr-&gt;b = data.b;
+}
+int main()
+{
+    struct data_struct data;
+    fun(&amp;data);
+    return 0;
+}
+</pre>
+<p class="contentPara">The compiler has passed a pointer to the function of the data type which will be returned. Here are two things to notice</p><ul><li>The function which was returning some struct, was made to void. It will not return via eax register.</li><li>The function got extra argument of the type pointer to the structure which it was returning in the original code.</li></ul></div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/return.html">&#x2039 Returning Value From Function</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/mixing.html">Mixing C and Assembly &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

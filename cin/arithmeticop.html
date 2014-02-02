@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Translation of Arithmetic Operations</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Translation of Arithmetic Operations</h1><br>
+<div class="contentText">Lets us see how an arithmetic expression is translated into assembly code. Take example of this C code:
+<pre class="code">int a = 2;
+int b= 3;
+int c = 24;
+a = a + b;
+a = a + b * c;
+</pre>
+Generated assembly code:
+<pre class="assemblycode">movl	$2, -4(%ebp)
+movl	$3, -8(%ebp)
+movl	$24, -12(%ebp)
+movl	-8(%ebp), %eax
+addl	%eax, -4(%ebp)
+movl	-8(%ebp), %eax
+imull	-12(%ebp), %eax
+addl	%eax, -4(%ebp)
+                            </pre>
+Location of local variables of the stack (local variables are explained <a href="memorymanagement.html">here</a>).<br /><pre class="freeText">a =&gt; ebp-4 =&gt; -4(%ebp)
+b =&gt; ebp-8 =&gt; -8(%ebp)
+c =&gt; ebp-12 =&gt; -12(%ebp)
+</pre>
+Comments on the generated assembly code:
+<pre class="assemblycode"># a = 2
+    movl    $2, -4(%ebp)
+# b = 3;
+    movl    $3, -8(%ebp)
+# c = 24
+    movl    $24, -12(%ebp)
+# tmp = b
+    movl    -8(%ebp), %eax
+</pre>
+<p class="contentPara"><a name="tempVaribaleUsage" id="tempVaribaleUsage"></a> The i386 has limitation on number of memory addresses in a single instruction. It can not use arbitrary number of memory addresses in a instruction. So it uses registers as temporary storage. It does arithmetic and other other kinds of operations using registers. A typical way of using the register is that first bring the content from memory to registers, do operation in registers and then store back the the value of registers into the memory. In the example below, the register eax is being used as temporary storage. in the commented code, tmp mean the register eax.</p>
+<pre class="assemblycode"># a = a + tmp
+    addl    %eax, -4(%ebp)
+# tmp = b
+    movl    -8(%ebp), %eax
+# tmp = tmp * c
+    imull   -12(%ebp), %eax
+# a = tmp + a
+    addl    %eax, -4(%ebp)
+</pre>
+<br /><span class="boldText">QUESTION:</span> How will a arithmetic expression translated into assembly code if the arithmetic expression contains brackets?<br /></div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/memorymanagement.html">&#x2039 Stack and Local Variables</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/bitwiseop.html">Translation of Bitwise Operations &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

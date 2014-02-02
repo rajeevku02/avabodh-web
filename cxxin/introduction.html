@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Introduction | C++ Internals</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Introduction</h1>
+<br>
+<div class="contentText">
+  <p class="contentPara">What happens if you compile a C++ source file? The answer is very obvious: an object or executable file is generated. The executable or the binary files contains machine executable instructions and some metadata of the machine instructions.<br> 
+
+Now the next question arises- how are the machine instructions generated out of a C++ source file? Does the CPU understand object oriented concepts like inheritance, polymorphism etc? Theoretically a CPU can be designed which can understand the object oriented concepts directly. But the popular x86 or x64 processors do not understand the object oriented concepts directly. These CPUs can execute only a definite set of instructions. And these instructions are sequential and procedural in nature.<br> 
+
+But if you compile a C++ source file, some machine instructions are generated. These machine instructions are only from a allowed set of instructions that CPU supports. That means the Object Oriented concept is implemented using the machine instructions.<br> 
+
+This article tries to explain how C++ code gets translated into low level instructions. In this article, instead of using the low level machine instructions (or assembly language), we will use C language code snippet to see how a C++ code is translated into low level. This is done because the C is very easy to understand and understanding how a C code is translated into machine instructions is pretty straight forward.<br><br> 
+
+<span class="boldText">Who should read this?</span><br> 
+- Anyone who is curious to understand what happens behind the scene. Understanding these things often helps you to write good code.<br> 
+- If you are a system programmer and write mix-mode code (C, C++, assembly) then this will be very helpful.<br><br> 
+
+<span class="boldText">Pre-req:</span> Knowledge of C, C++.<br><br> 
+
+<span class="boldText">NOTE:</span> The actual structure of the generated code depends on the computer architecture, operating system and compiler. In this article we will not go with the exact generated code but will work with a simplified model. This is done to simplify things so that readers can understand without dealing with the complication of a operating system, computer architecture or a particular compiler. The author has explored most of the things by reverse engineering the generated code by g++ on Linux. So the concept described in this article will more close to code generated by g++. But the code generated by other compilers will look very similar.</p>
+</div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cxxin/cxx.html">&#x2039 C++ Internals</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cxxin/cxx.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cxxin/namemangling.html">Name Mangling and Function Overloading &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

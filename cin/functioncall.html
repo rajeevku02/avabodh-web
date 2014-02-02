@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Function Call</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Function Call</h1><br>
+<div class="contentText"><p class="contentPara">The C function call is translated into assembly language using "call" assembly instruction. When the call instruction is executed, it pushes the address of next instruction on the stack and then passes the control to the first instruction of the function which is called. The C return statement (there is a implicit return statement at the end of C void function) is translated using "ret" assembly instruction. The ret does the reverse of call instruction. It pop the stack to get the address and jumps to the address. So this is very important to make sure the top of the stack contains the correct return address when executing the return instruction. This is the responsibility of the compiler to generate the bug free code so that it will not mess-up with the return address.<br /> Lets us see an example of how gcc generate code for function call</p>C code:
+<pre class="code">void fun()
+{
+    int x = 0;
+    x++;
+}
+int main()
+{
+    fun();
+}
+</pre>
+Generated assembly code
+<pre class="assemblycode">.text
+.globl fun
+fun:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $16, %esp
+    movl    $0, -4(%ebp)
+    addl    $1, -4(%ebp)
+    leave
+    ret
+.globl main
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+    call    fun
+    popl    %ebp
+    ret
+</pre>
+Comments on the generated code:
+<pre class="assemblycode"># .text segment starts
+    .text
+
+# export the function fun
+.globl fun
+
+# start of the function fun
+fun:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $16, %esp
+    movl    $0, -4(%ebp)
+    addl    $1, -4(%ebp)
+    leave
+    ret
+
+# export the function main
+.globl main
+
+# main function start here
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+
+# main function calls fun
+    call    fun
+
+# main function return. it will restore the ebp register then return
+    popl    %ebp
+    ret
+</pre>
+</div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/functionpointer.html">&#x2039 Function Pointer</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/parameter.html">Parameter Passing &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

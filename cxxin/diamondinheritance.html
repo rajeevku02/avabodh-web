@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Diamond Shaped Inheritance | C++ Internals</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Diamond Shaped Inheritance</h1>
+<br>
+
+<div class="contentText">Let's now discuss a classic C++ inheritance issue of <a href="http://en.wikipedia.org/wiki/Diamond_problem"> diamond shaped inheritance</a><br><br>
+Consider this example: <br>
+<pre class="code">class myClassBaseCommon {};
+class myClassBase1 : public myClassBaseCommon { };
+class myClassBase2 : public myClassBaseCommon { };
+class myClassDerived: public myClassBase1, public myClassBase2 { };
+</pre>
+<br><p class="contentPara">In this case, the object of myClassDerived will have two copies myClassBaseCommon. Most of the time this behaviour is not desirable. To solve this problem, virtual base class is used. After using the virtual base class, the inheritance code will become -</p><br>
+
+<pre class="code">class myClassBaseCommon {};
+class myClassBase1 : virtual public myClassBaseCommon { };
+class myClassBase2 : virtual public myClassBaseCommon { };
+class myClassDerived: public myClassBase1, public myClassBase2 { };
+</pre>
+<br><p class="contentPara">After making the myClassBaseCommon virtual base class, there will be only one copy of this in the object of myClassDerived. Object model will be implemented similar to one which is described in the previous page. The offset of this in the object of myClassDerived will be obtained from the vtable. The C structure for myClassDerived will look like</p>
+<pre class="code">struct myClassDerived
+{
+    struct myClassBase base1;
+    struct myClassBase2 base2;
+    // members defined in myClassDerived will come here.
+    struct myClassBaseCommon common;
+};
+</pre>
+<br><p class="contentPara">In this struct, the base1 and base2 do not contain the object of myClassBaseCommon. As the base1 and base2 have virtual base, they have vtable pointer. Their vtable pointers have the offset to locate the object of myClassBaseCommon from itself. These offset point to the one which is defined as the last member (common). This is the responsibility of constructor of myClassDerived to override the vtable of its base classes and set the proper offset. As we have seen previously the derived class always overriding vtable of the base classes. Note that this constructor (which does the overriding of vtable) is not written by programmer, but generated by compiler and implicitly called for each object creation of this type.</p><br><br>
+
+Here is diagram to to describe this: <br>
+<img alt="" src="/images/cxxin/diamondinheritance.png"><br>&nbsp;</div><!-- content text-->
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cxxin/virtualbase.html">&#x2039 Virtual Base Classes</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cxxin/cxx.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cxxin/exception.html">Exception Handling &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

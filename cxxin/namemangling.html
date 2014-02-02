@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Name Mangling and Function Overloading  | C++ Internals</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Name Mangling and Function Overloading</h1>
+<br>
+
+<div class="contentText"><p class="contentPara">The C++ provides a feature called function overloading. This enables you to write many functions with same name, provided each function takes parameters of different types. The lower level languages (C or assembly) and tools (linker) do not have capability of understanding function overloading. For these languages, each function name must be unique so that functions can be differentiated from each other by its name only.<br>
+C++ differentiates functions with name and parameter both. It generates a new name for each function. The new name depends on the original C++ function name and parameters. Given a function name of a set of parameters, it will always generate a unique name. If parameters (number of params, type of params or order of params) change then it will generate another name even if the original C++ function name is same. This process of encoding the function name is known as name mangling.<br> 
+The process of name mangling is compiler dependent. Compilers can use different strategies. The name mangled by a compiler may not be same as mangled by other compilers.</p><p>Here are few examples of mangled name for g++ compiler:-<br> Original name: &nbsp;<span class="code"> void myFun();</span> &nbsp; &nbsp;&nbsp;&nbsp;Mangled name:&nbsp; _Z5myFunv<br> Original name: &nbsp;<span class="code">void myFun(int a, char c); </span>&nbsp; &nbsp;&nbsp;&nbsp;Mangled name:&nbsp; _Z5myFunic</p><p>looking at the mangled name we can observe the pattern. The pattern looks like: -<br> <span class="boldText2"> _Z numberOfCharsInOriginalFunctionName OriginalFunctionName parameter_names_encoded</span></p><p>Parameter encoding scheme:<br> <span class="boldText">for primitive type:</span><br> 
+char: c<br> 
+int: i<br> 
+long: l<br> 
+void: v<br> 
+<span class="boldText">for array or pointer:</span><br> 
+P is appended<br> 
+<span class="boldText">for user defined type names:</span><br> 
+size of the user defined string is appended before the name e.x. for class name myClass, it will be encoded as 7myClass</p><p>Lets take few more examples:<br> <span class="code">void myFun(int a, char *p, int arr[])</span> ==&gt; _Z5myFuniPcPi<br> <span class="code">void myFun(int a, MyClass c)</span> ==&gt; _Z5myFuni7MyClass</p><p>We have seen all example of functions not part of any class. If a function is part of any class, then the mangling is little different. For example</p>
+<pre class="code">class MyClass
+{
+   void MyFunction(int a) {}
+}
+</pre>
+Here is mangled name of MyClass:MyFunction will become _ZN7MyClass10MyFunctionEi.<br> 
+Name mangling with namespace:
+<pre class="code">namespace NS
+{
+    class myClass
+    {
+        public: void MyFunction(int a) {}
+    };
+}
+</pre>
+Here mangled name for the function will become _ZN2NS7myClass10MyFunctionEi<br> Now find out the pattern yourself.<br> There is gnu tool called c++filt which can take a mangled name and demangles it. Readers are encouraged to play with this tool and try to demangle all names in the above examples.<br> The exact pattern of name mangling is not important to programmer. For programmers, the important thing to understand is ithat there is unique method name which is generated for each overload so that it can be resolved (by assembler, linker) without any ambiguity.<br>&nbsp;</div>
+
+<div class="contentTitle"><h1>Interfacing with C</h1></div>
+<div class="contentText"><p class="contentPara">C++ mangles function names but C does not. What will happen if you are writing mixed-mode code. Some of the source files are compiled by C++ compiler and some files by C compiler and then you link the objects created by these compilers.<br> Let's take an example: you are writing a library in a file called <span class="filename">lib.cpp</span> and consuming this library in another file called <span class="filename">use.cpp</span> the content of these files are like-</p><span class="filename">lib.cpp</span><br>
+<pre class="code">int libFunction(int x)
+{
+    return x++;
+}
+</pre>
+<span class="filename">use.cpp</span><br>
+<pre class="code">int libFunction(int x);
+int main()
+{
+    cout&lt;&lt;libFunction(2);
+}
+</pre>
+<p class="contentPara">compile these two files (by C++ compiler) separately and link. This will work fine. The use.cpp has a unresolved reference to the method "int libFunction(int x)" and this is provided by lib.cpp and unresolved reference gets resolved. As the code is getting compiled by the c++ compiler, there will be name mangling. So the use.cpp has a unresolved reference to a method name _Z11libFunctioni and the lib.cpp file provides the definition of the method _Z11libFunctioni.<br> Now think what will happen if the lib.cpp file is compiled by a C compiler and use.cpp by c++ compiler? The lib.cpp will export a method with name libFunction but the use.cpp has unresolved reference to _Z11libFunctioni. The unresolved reference will not be satisfied and there will be a linker error.<br> There is way to tell c++ compiler that do not mangle the method name which is implemented somewhere else. That means it will not import the method with mangled name. There is a keyword <span class="code">extern</span> which is used for this. After using this keyword the use.cpp will will become:</p><span class="filename">use.cpp</span>
+<pre class="code">extern "C" int libFunction(int x);
+int main()
+{
+    cout&lt;&lt;libFunction(2);
+}
+</pre>
+<br><p class="contentPara">in this code the imported method name will become libFunction rather than _Z11libFunctioni. So this will work fine if the the lib.cpp is complied with a C compiler.</p>
+<p class="contentPara"><br><span class="boldText">Writing a header file which can be used by both C and C++ compiler</span><br> A typical way of writing C or C++ code is to declare method names in a header file and include the header file in both files: the consumer of the method name and the implementer of the method. If the one of the file is in C and other in C++ and then the inclusion of header file will result into a compilation error in the C file because extern is not a C keyword. There is a simple solution of using conditional compilation. The header file which contains the libFunction declaration will look like</p>
+<pre class="code">#ifdef __cplusplus
+extern "C" int libFunction(int x);
+#else
+int libFunction(int x);
+#endif
+</pre>
+<p class="contentPara">The __cplusplus is only defined for C++. So the declaration with extern keyword will be used only by C++ compiler and the other declaration will be used only by the C compiler.</p></div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cxxin/introduction.html">&#x2039 Introduction</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cxxin/cxx.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cxxin/classstruct.html">Class and Structure &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

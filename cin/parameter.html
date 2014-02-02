@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Parameter Passing</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Parameter Passing</h1><br>
+<div class="contentText"><p class="contentPara">Parameters are passed on the stack. The parameters are pushed on the stack then function call is made. So the parameters are just below the return address. If a function want to read the the parameter, then it read from the stack just below the return address.<br /> Lets see this in an example</p>C code:
+<pre class="code">void fun(int x, int y)
+{
+    x++;
+    x += y;
+}
+int main()
+{
+    fun(2, 3);
+}
+</pre>
+Here is the generated assembly code:
+<pre class="assemblycode">.text
+.globl fun
+fun:
+    pushl	%ebp
+    movl	%esp, %ebp
+    addl	$1, 8(%ebp)
+    movl	12(%ebp), %eax
+    addl	%eax, 8(%ebp)
+    popl	%ebp
+    ret
+.globl main
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $8, %esp
+    movl    $3, 4(%esp)
+    movl    $2, (%esp)
+    call    fun
+    leave
+    ret
+</pre>
+Location of local variables of the stack (local variables are explained <a href="memorymanagement.html">here</a>)
+<pre class="freeText">x ==&gt; 8(%ebp)
+y ==&gt; 12(%ebp), %eax
+</pre>
+<p class="contentPara">This is very much related to what is described in the local variable chapters. The parameters are allocated as the local variables only. There is only one difference is that the local variables are allocated on the top where where the return address is pushed on stack and parameter lies beneath the return address.</p><p>The parameter passing can be explained with this diagram:<br /><img alt="" src="/images/cin/parameter.png" /></p><p><br />Comments on the generated code:</p>
+<pre class="assemblycode"># .text segment starts
+    .text
+
+# export the the function fun
+.globl fun
+
+# function fun starts here
+fun:
+
+# save ebp on stack
+    pushl   %ebp
+    movl    %esp, %ebp
+
+# x++;
+    addl    $1, 8(%ebp)
+
+# tmp = y
+    movl    12(%ebp), %eax
+
+# x = x + tmp
+    addl    %eax, 8(%ebp)
+
+#restore ebp and return
+    popl    %ebp
+	ret
+
+# export the main function
+.globl main
+
+# main function starts here
+main:
+# save the ebp register
+    pushl   %ebp
+    movl    %esp, %ebp
+
+# stack_pointer -= 8
+    subl	$8, %esp
+
+# push the second parametr
+    movl    $3, 4(%esp)
+
+# push the first parameter
+    movl    $2, (%esp)
+
+# call the function fun
+    call	fun
+
+# return the main function
+    leave
+    ret
+</pre>
+<br />Points to understand:<br /><ul><li>The parameters are passed left to right. The last parameter in C code is pushed first and first parameter is pushed in the last. So if you scan the stack from top, then first parameter will be found first.</li><li>The generated code does not use the push instruction. Instead it decrement the stack pointer first then add parameter of the space created by decrementing the stack pointer. This have been possibly done for perf reason (subl + movl will may be faster than push + pop).</li><li>If the parameter is of type structure then whole of the structure will be pushed on the stack.</li></ul></div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/functioncall.html">&#x2039 Function Call</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/return.html">Returning Value From Function &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

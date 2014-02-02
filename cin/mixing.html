@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mixing C and Assembly</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Mixing C and Assembly</h1><br>
+<div class="contentText"><span class="boldText">Defining in assembly and using in C</span><br /> The assembly code which defines functions and variables:
+<pre class="assemblycode"># define a global variable asm_var and export it so that C code can use.
+.data
+.global asm_var
+asm_var:
+.long
+
+# define a function asm_fun and export it so that C code can use.
+.text
+.global asm_fun
+asm_fun:
+    ret;
+</pre>
+C code:
+<pre class="code">void asm_fun();
+extern int asm_var;
+
+int x;
+void main()
+{
+	asm_fun();
+	asm_var++;
+}
+</pre>
+Points to understand:<br /><ul><li>Assembly code can define variables and functions which can be used in C program.</li><li>The assembly code must export variables and functions which will be used from C code. In this example .global is used to export asm_var and asm_fun.</li><li>The C code should declare variables and function before using. These declaration is similar to what is done in header file. The declaration can be done in c source files or c header files.</li></ul><br /><span class="boldText">Defining in C and using in assembly</span><br /> C code
+<pre class="code">void fun()
+{
+}
+</pre>
+Assembly code:
+<pre class="assemblycode">.text
+.global main
+main:
+    call fun
+    ret;
+</pre>
+Points to understand:<br /><ul><li>Functions and variables defined in C are always exported unless you use static keyword. You do not have to export each symbol as you do in assembly.</li><li>The assembly can call function or use variables as if they are defined in assembly code itself.</li></ul><br /><span class="boldText">Mixing assembly inside C code</span><br /><p class="contentPara">There are few things that you can not do in pure C code at all. For those things you have to use assembly. For example if you want to raise a hardware exception, then you need to write assembly instruction. C does not provide any syntax to raise hardware exception. To avoid to write code in separate assembly file and call from C code, C provide a way to insert assembly code inside a C code. This is done by asm keyword.</p>Here is an example:
+<pre class="code">int main()
+{
+	asm("int $3");
+	return 0;
+}
+</pre>
+Assembly which is generated form this C code will be:
+<pre class="assemblycode">    .text
+.globl main
+    .type   main, @function
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+    int $3
+    movl    $0, %eax
+    popl    %ebp
+    ret
+</pre>
+</div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/structure.html">&#x2039 Memory Allocation for Structure</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/misc.html">Miscellaneous &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

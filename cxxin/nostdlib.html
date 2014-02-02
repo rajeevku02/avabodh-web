@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Working Without Standard Library  | C++ Internals</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Working Without Standard Library</h1>
+<br>
+
+<div class="contentText"><p class="contentPara">There are times when you do not want to use standard C++ library and also want to remove the dependency of you binary on the standard C++ library. Some of the binary dependencies are automatically created by compiler when you compile your code without using any library explicitly. For example write this code-</p>
+<pre class="code">int main()
+{
+    return 0;
+}
+</pre>
+<br>Now compile this code with g++ compiler as:<br> <span class="boldText2">g++ a.cpp</span><br> This will generate a.out Then to see what libraries on which there is a dependency created, run this command:<br> <span class="boldText2">ldd a.out</span><br><br> It will show you bunch of libraries on which the a.out depends. To remove this dependency, compile the code as:<br> <span class="boldText2">g++ -nostdlib -fno-exceptions -fno-rtti a.cpp</span><br> This will generate a.out which will have no dependency on any other library.<br><br> Here are the meanings of the compiler options used above:<br> <span class="boldText2">nostdlib:</span> do not use standard libraries.<br> <span class="boldText2">fno-exceptions:</span> disable the exception handling.<br> <span class="boldText2">fno-rtti:</span> disable runtime type identification.<br><br><p class="contentPara">Ideally you can compile only with nostdlib option. You will need to implement exception handling ABI. But we will not go through that route. The technique here described is with all three compiler options.</p><br><span class="boldText">When do you need to compile without standard library?</span><br> There are many cases. Here are few:-<ul><li>You are writing a OS kernel in C++. You need to write little amount of code in assembly language and rest of the thing you can write in C++. In this case, you don't have the standard library available to you. You need to build your own library to use with your code.</li><li>You are writing code for embedded system. Depending upon your framework, the support for C++ library may or may not be there. If there is no support for any C++ library, you can still write code in C++ for such system using the technique described here.</li><li>You are simply a crazy person(like me!) and don't want to use standard C++ library.</li></ul><br><span class="boldText">Things to take care if there is no support for C++ in your system</span><ul><li>Initializing static and global variables. This includes call to constructors of global and static objects before the execution starts at the entry point (typically main function) in your code.</li><li>Memory allocation implementation. C++ generated code calls the implementation of new operator. The new operator is defined in standard library. If you are not using the standard library, then you will have to implement this. In the implementation of new operator, you will call the memory allocation function that is available in your framework.</li><li>g++ needs the implementation(definition) for pure virtual function. Not sure why needed. You need to provide a definition of pure virtual function. You can write error handling code in this function. I guess, the pure virtual function can only be called if there is some bug in compiler. There are few more non-sense that you need to implement. We will see those in the code.</li></ul><br><p class="contentPara">The 1st issues can be solved by calling the constructors of all global variables yourself. You have to do what stdlib does for calling constructors of global and static variables. Here is code to do that:</p>
+<pre class="code">void callConstructors()
+{
+  void (**constructor)() = &amp;__CTOR_LIST__ ;
+  int total = *(int *)constructor ;
+  constructor++ ;
+  while(total){
+          (*constructor)() ;
+          total-- ;
+          constructor++ ;
+      }
+}
+void callDestructors()
+{
+  void (**deconstructor)() = &amp;__DTOR_LIST__ ;
+  int total = *(int *)deconstructor ;
+  deconstructor++ ;
+  while(total){
+          (*deconstructor)() ;
+          total-- ;
+          deconstructor++ ;
+      }
+}
+</pre>
+<p class="contentPara">The __CTOR_LIST__ is the list which contains the function pointers of functions which call the constructors of global and static variables. The first entry of the list contains the number of such pointers then all function pointers.<br> Similarly the __DTOR_LIST__ contains the function pointers of function which calls the destructors of static and global variables.<br> The functions which calls constructors and destructors are generated by compiler and their address are stored in sections called .ctors and .dtors respectively. The __CTOR_LIST__ and __DTOR_LIST__ is created using these section and with the help of a linker script.</p>Here is the linker script:
+<pre class="code">ENTRY(entry)
+LOAD_VIR = 0x100000;
+LOAD_PHYS = 0x100000;
+SECTIONS
+{
+  .text LOAD_VIR : AT(LOAD_PHYS)
+  {
+    _linker_code = .;
+    *(.text)
+    *(.text.*)
+    *(.rodata*)
+    *(.gnu.linkonce.t*)
+    *(.gnu.linkonce.r*)
+    . = ALIGN(4096);
+  }
+  .data :
+  {
+    _linker_data_start = .;
+    __CTOR_LIST__ = .; LONG((__CTOR_END__ - __CTOR_LIST__) / 4 - 2)*
+                                          (.ctors)   LONG(0) __CTOR_END__ = .;
+          __DTOR_LIST__ = .; LONG((__DTOR_END__ - __DTOR_LIST__) / 4 - 2)*
+                                         (.dtors) LONG(0) __DTOR_END__ = .;
+    _linker_data = .;
+    *(.data)
+    *(.data.*)
+    *(.gnu.linkonce.d*)
+    . = ALIGN(4096);
+  }
+  .bss :
+  {
+    _linker_bss = .;
+    *(.bss)
+    *(.bss.*)
+    *(.gnu.linkonce.b.*)
+    *(.COMMON)
+    . = ALIGN(4096);
+  }
+  _linker_end = .;
+}
+</pre>
+<br>This linker script does these things:<ul><li>Defines the load address (physical and virtual) of the binary which will be the output of the linker. In this script it is 0x100000. You can set this address according to the address your system will load your binary.</li><li>Merges different section.</li><li>Create __CTOR_LIST__ and __DTOR_LIST__</li></ul><br>Now lets see the code, compiling and linking steps:
+<pre class="code">extern "C" {
+  extern void (*__CTOR_LIST__)() ;
+  extern void (*__DTOR_LIST__)() ;
+}
+void callConstructors()
+{
+  void (**constructor)() = &amp;__CTOR_LIST__ ;
+  int total = *(int *)constructor ;
+  constructor++ ;
+  while(total){
+          (*constructor)() ;
+          total-- ;
+          constructor++ ;
+      }
+}
+void callDestructors()
+{
+  void (**deconstructor)() = &amp;__DTOR_LIST__ ;
+  int total = *(int *)deconstructor ;
+  deconstructor++ ;
+  while(total){
+          (*deconstructor)() ;
+          total-- ;
+          deconstructor++ ;
+      }
+}
+int main()
+{
+  callConstructors();
+  // Call you code
+  callDestructors();
+}
+void* operator new (unsigned size)
+{
+    // call your memory allocation routine
+}
+void * operator new[] (unsigned size)
+{
+    // call your memory allocation routine
+}
+void operator delete (void*)
+{
+    // call your memory free routine
+}
+void operator delete[] (void*)
+{
+    // call your memory free routine
+}
+extern "C" void __cxa_pure_virtual (){}
+void * __dso_handle=0;
+extern "C" void  __cxa_atexit(){}
+</pre>
+<br>Save this code a.cpp. Then use these commands:<br> <span class="boldText2">g++ -c -nostdlib -fno-exceptions -fno-rtti a.cpp</span><br> <span class="boldText2">ld -T ldscriptFile a.o -o a.out</span><br><p class="contentPara">These command will produce a.out binary from the file a.cpp. If you have more one file, then compile each file separately and use the linker to link all object files into an executable file.</p></div><!-- content text-->
+
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cxxin/exception.html">&#x2039 Exception Handling</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cxxin/cxx.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cxxin/conclusion.html">Conclusion &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

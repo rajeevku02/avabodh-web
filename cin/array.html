@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Array Indexing</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Array Indexing</h1><br>
+<div class="contentText">Take this C code as example:
+<pre class="code">// this line is defined globaly
+int globalArr[5];
+// these lines are part of some function
+int b;
+int localArr[5];
+globalArr[2] = 12;
+localArr[0] = 3;
+localArr[4] = 18;
+b = localArr[4];
+</pre>
+Gnerated assembly code:
+<pre class="assemblycode">movl    $12, globalArr+8
+movl    $3, -24(%ebp)
+movl    $18, -8(%ebp)
+movl    -8(%ebp), %eax
+movl    %eax, -4(%ebp)
+</pre>
+Location of local variables of the stack (local variables are explained <a href="memorymanagement.html">here</a>)
+<pre class="freeText">b =&gt; -4(%ebp)
+localArr =&gt; -24(%ebp) to -4(%ebp)
+           [excluding the memory location pointed by -4(%ebp) ]
+           The localArr of length 5; each element in array is of 4 bytes.
+           So total space by local var = 20 bytes.
+</pre>
+The use of registers as temporary memory is described <a href="arithmeticop.html#tempVaribaleUsage">here</a><br /> Comments on generated assembly code:
+<pre class="assemblycode"># globalArr[2] = 12;
+# globarArr + 8 means memory starting at the 8th byte of global var.
+# because each element is of 4 bytes so the 3rd element will start at
+# byte offset 8
+movl	$12, globalArr+8
+
+# localArr[0] = 3. The localArr start at -24(%ebp) so the localArr[0]
+# will be at byte offset 0
+    movl    $3, -24(%ebp)
+
+# localArr[4] = 18. localArr[4] will at byte offset 16. (-24 + 16 = -8)
+    movl    $18, -8(%ebp)
+
+# tmp = localArr[4]
+    movl    -8(%ebp), %eax
+
+# b = tmp
+    movl	%eax, -4(%ebp)
+</pre>
+</div>
+<br /><div class="contentTitle"><h1>Array indexing using pointers</h1></div><div class="contentText">Take this C code as example:
+<pre class="code">// This line if defined globally.
+int globalArr[5];
+// these lines are part of some function
+int b;
+int *ptr = globalArr;
+b = ptr[4];
+</pre>
+Generated assembly code:
+<pre class="assemblycode">movl    $globalArr, -8(%ebp)
+movl    -8(%ebp), %eax
+addl    $16, %eax
+movl    (%eax), %eax
+movl    %eax, -4(%ebp)
+</pre>
+Location of local variables of the stack (local variables are explained <a href="memorymanagement.html">here</a>)
+<pre class="freeText">b =&gt; -4(%ebp)
+ptr =&gt; -8(%ebp)
+</pre>
+The use of registers as temporary memory is described <a href="arithmeticop.html#tempVaribaleUsage">here</a><br /> Comments on generated assembly code:
+<pre class="assemblycode"># ptr = globalArr
+movl    $globalArr, -8(%ebp)
+
+# tmp = ptr
+movl    -8(%ebp), %eax
+
+# tmp = tmp + 16. The tmp contains a pointer. so the next
+# instruction is to move the pointer by 16 bytes.
+addl    $16, %eax
+
+# tmp = *tmp
+movl    (%eax), %eax
+
+# b = tmp;
+movl    %eax, -4(%ebp)
+</pre>
+</div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/pointer.html">&#x2039 Pointer Dereferencing</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/functionpointer.html">Function Pointer &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

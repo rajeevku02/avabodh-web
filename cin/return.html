@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Returning Value From Function</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Returning Value From Function</h1><br>
+<div class="contentText"><p class="contentPara">Function return value can be either returned in a register or on the stack. For all object of basic data types (int, char, pointer etc) is returned in eax register. The structure is returned on stack. We will see this is the next chapter.</p>C code:
+<pre class="code">int fun()
+{
+    return 16;
+}
+int main()
+{
+    int a;
+    a = fun();
+    return 0;
+}
+</pre>
+Generated assembly code:
+<pre class="assemblycode">    .text
+.globl fun
+fun:
+    pushl   %ebp
+    movl    %esp, %ebp
+    movl    $16, %eax
+    popl    %ebp
+    ret
+.globl main
+main:
+    pushl   %ebp
+    movl    %esp, %ebp
+    subl    $16, %esp
+    call    fun
+    movl    %eax, -4(%ebp)
+    movl    $0, %eax
+    leave
+    ret
+</pre>
+Comments on generated code:
+<pre class="assemblycode"># text segment starts here
+    .text
+
+# export the function fun
+.globl fun
+
+# code of the function fun starts from here
+fun:
+
+# save the ebp register and set the ebp register to point the current stack frame
+    pushl   %ebp
+    movl    %esp, %ebp
+
+# move return value (16) to eax register
+    movl    $16, %eax
+
+# restore the ebp register and return. 
+# Note that the return instruction will not change the value
+# of each register. The caller of this function will get the
+# return value in eax register
+    popl    %ebp
+    ret
+
+# export the main function.
+.globl main
+
+# code for function main starts from here
+main:
+
+# save the ebp register and point it to current stack frame
+    pushl   %ebp
+    movl    %esp, %ebp
+
+# create local variable and make proper alignment of esp register.
+    subl    $16, %esp
+
+# Call the function fun.
+    call    fun
+
+# The function fun has returned in eax register. 
+# Store this value in local variable a
+    movl    %eax, -4(%ebp)
+
+# the main function returns now. It will return value in eax register.
+    movl    $0, %eax
+    leave
+    ret
+</pre>
+</div>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cin/parameter.html">&#x2039 Parameter Passing</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cin/cin.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cin/structure.html">Memory Allocation for Structure &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>

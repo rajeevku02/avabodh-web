@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multiple Inheritance (Multiple Base Classes) | C++ Internals</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<style>
+.align_left {
+  text-align: left;
+}
+
+.align_right {
+  text-align: right;
+}
+
+.align_center {
+  text-align: center;
+}
+
+.contentPara
+{
+    text-align: justify;
+}
+
+.freeText
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+}
+
+.code
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: blue;
+}
+
+.assemblycode
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size:14px;
+    line-height:25px;
+    color: darkblue;
+}
+
+.filename
+{
+    font-weight: bolder;
+}
+
+.boldText
+{
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.boldText2
+{
+    font-weight: bolder;
+}
+
+.contentTitle
+{
+/*
+height:44px;
+margin-top:20px;
+background-image:url(/sites/default/misc/tab_back.png);
+background-repeat:no-repeat;
+*/
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.contentTitle h1
+{
+/* margin-left:21px; 
+padding-top:8px; */
+font-size:17px;
+font-weight:bold;
+color:#071027;
+}
+
+.contentText
+{
+font-size:14px;
+color:#030712;
+line-height:25px;
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+.internalLinks
+{
+text-decoration:none;
+color:#223F8D;
+}
+
+.internalLinks:hover
+{
+color:#5478D6;
+}
+
+</style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Multiple Inheritance (Multiple Base Classes)</h1>
+<br>
+
+<div class="contentText">Consider these classes:
+<pre class="code">class myClassBase
+{
+public:
+    int baseMember;
+    myClassBase() { baseMember = 0; }
+    int baseMethod(int x) { return baseMember + x; }
+};
+class myClassBase2
+{
+public:
+    int baseMember2;
+    myClassBase2() { baseMember2 = 0; }
+    int baseMethod2(int x) { return baseMember2 + x; }
+};
+class myClassDerived : public myClassBase, public myClassBase2
+{
+public:
+    int derivedMember;
+    myClassDerived() { derivedMember = 0; }
+    int derivedMethod(int x) { return derivedMember + x; }
+};
+</pre>
+<br>The equivalent C code will be -
+<pre class="code">struct myClassBase
+{
+    int baseMember;
+};
+struct myClassBase2
+{
+    int baseMember2;
+};
+struct myClassDerived
+{
+    struct myClassBase base;
+    struct myClassBase2 base2;
+    int derivedMember;
+};
+void myClassBase_ctor(struct myClassBase *this)
+{
+    this-&gt;baseMember = 0;
+}
+int myClassBase_baseMethod(struct myClassBase *this, int x)
+{
+    return this-&gt;baseMember + x;
+}
+void myClassBase2_ctor(struct myClassBase2 *this)
+{
+    this-&gt;baseMember2 = 0;
+}
+int myClassBase2_baseMethod(struct myClassBase2 *this, int x)
+{
+    return this-&gt;baseMember2 + x;
+}
+void myClassDerived_ctor(struct myClassDerived *this)
+{
+    myClassBase_ctor((struct myClassBase*)this);
+    void *ptr = (void*)this + offsetof(struct myClassDerived, base2);
+    myClassBase2_ctor((struct myClassBase2*)ptr);
+    this-&gt;derivedMember = 0;
+}
+int myClassDerived_derivedMethod(struct myClassDerived *this, int x)
+{
+    return this-&gt;derivedMember + x;
+}
+</pre>
+<br>Here is diagram describing the all three class relations:<br> <img alt="inheritance with multiple base classes" src="/images/cxxin/multiinheritance.png"><br> Points to understand:<ul><li>The derived class object contains objects of base classes embedded into this. This is in the same sequence as written in C++ code. The object of derived class will first have all the objects of base classes then its own data member. But this may depend on compiler implementation. The example given here is based on g++ compiler.</li><li>The constructor of derived class calls the constructor of all bases classes. While calling the constructor of a base class, the derived class passes the pointers to base type. The derived class constructor has the information of offset of the base class object inside the derived class object. It sets the pointer appropriately. In the example given above, the object of myClassBase starts at zero offset, so it uses the same pointer as that of myClassDerived to call the constructor of myClassBase. And object of myClassBase2 starts inside the object of derived class object. So it calculates the offset using offsetof macro and then uses the pointer at that offset for calling the constructor of myClassBase2.</li><li>Whenever derived class class object is casted into one of the base class object, then the pointer is set to a offset in the object of derived class from where the base class object is located.</li></ul><br>Now you can understand how this code works-
+<pre class="code">myClassDerived *derived = new myClassDerived;
+void *ptr = derived;
+myClassDerived * derived2 = (myClassDerived *)ptr;
+myClassBase *base1 = (myClassBase *)ptr;
+</pre>
+<br><span class="boldText">Question:</span> What is the issue with this code?
+<pre class="code">myClassBase2 *base2 = (myClassBase2 *)ptr;
+</pre>
+<br><p class="contentPara">Here the myClassBase2 object is casted from void pointer. The compiler has no idea that what is the offset of the myClassBase2 in the given object. In this case the compiler points to the first byte which is wrong in this case. If you will cast the myClassDerived* to myClassBase2* then compiler knows the offset of myClassBase2 in the myClassDerived. The compiler knows it from the inheritance structure of the derived class and hence it will generate code to point to correct offset int he derived class object.</p></div><!-- content text-->
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/cxxin/inheritance.html">&#x2039 Inheritance</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/cxxin/cxx.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/cxxin/virtualfunction.html">Virtual Function &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>
