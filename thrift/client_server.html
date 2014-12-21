@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A simple client server example</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<link rel="stylesheet" href="/highlight/xcode.css">
+<script src="/highlight/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>A simple client server example</h1>
+
+<p><br/></p>
+
+<h4>Thrift IDL</h4>
+
+<p>To create a service in thrift, you need to first define the service in IDL file. The IDL file is then used to generate skeleton code/interface in different languages. Then you need to implement the skeleton code or the interface to implement the service you need to create. In this tutorial we will learn how to implement services in C++</p>
+
+<p><br/></p>
+
+<h4>Calculator service</h4>
+
+<p>Let us create a simple calculator service. The service will provide an add function. The function will take two numbers as argument and return sum of these two numbers as result. The server will implement the add function and a client from different process will call the add function.<br/></p>
+
+<p>The IDL for the calculator service (calculator.thrift)</p>
+
+<pre><code>namespace cpp example // The generated c++ code will be put inside example namespace
+
+// Defines a service with name Calculator
+service Calculator {
+  // Add a function with name add in the Calculator service.
+  // This has two argument num1 and num2 of type i32 and return
+  // a value of type i64
+  i64 add(1:i32 num1, 2:i32 num2);
+}
+</code></pre>
+
+<p>Compile this as</p>
+
+<pre><code>python -m thrift_compiler.main --gen cpp2 calculator.thrift
+</code></pre>
+
+<p>This will generate gen-cpp2 folder which contains all generated cpp files which we will use to build server and client.</p>
+
+<p><br/>
+Server code (server.cpp)</p>
+
+<pre><code>#include &lt;iostream&gt;
+
+#include "gen-cpp2/Calculator.h" // This is included from generated code
+#include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
+
+using namespace std;
+using namespace apache::thrift;
+using namespace example::cpp2;
+
+// The thrift has generated service interface with name CalculatorSvIf
+// At server side we have to implement this interface
+class CalculatorSvc : public CalculatorSvIf
+{
+ public:
+  virtual ~CalculatorSvc() {}
+  // We have to implement async_tm_add to implement the add function
+  // of the Calculator service which we defined in calculator.thrift file
+  void async_tm_add(
+    // callback is passed to this function to return result of the add
+    // operation. Since we are implementing the service in async way
+    // the return type of function is void and result is returned via
+    // callback. The function may immediately return and later when
+    // the result is ready then it will return the result via
+    // callback. In this example, we are returning the result
+    // before returning the function but this may not be always true.
+    std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
+    // num1 is a parameter of add function. Its value will be passed from client
+    int32_t num1,
+    // num2 is another parameter of add function. Its value will be passed from client
+    int32_t num2)
+  {
+    cout &lt;&lt; "Got async request " &lt;&lt; num1 &lt;&lt; " + " &lt;&lt; num2 &lt;&lt; endl;
+    callback-&gt;result(num1 + num2); // return the result via callback
+  }
+};
+
+int main(int argc, char **argv) {
+  // To create a server, we need to first create server handler object.
+  // The server handler object contains the implementation of the service.
+  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
+  // Create a thrift server
+  ThriftServer* s = new ThriftServer();
+  // Set server handler object
+  s-&gt;setInterface(ptr);
+  // Set the server port
+  s-&gt;setPort(8080);
+  // Start the server to serve!!
+  s-&gt;serve();
+
+  return 0;
+}
+</code></pre>
+
+<p>Compile the server with command</p>
+
+<pre><code>g++ -o server server.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
+</code></pre>
+
+<p><br/>
+Client code (client.cpp)</p>
+
+<pre><code>#include "gen-cpp2/Calculator.h" // From generated code
+#include &lt;iostream&gt;
+
+using namespace std;
+using namespace apache::thrift;
+using namespace apache::thrift::async;
+using namespace example::cpp2;
+using namespace folly::wangle;
+
+int main()
+{
+  TEventBase base;
+  int port = 8080; //The port on which server is listening
+
+  // Create a async client socket and connect it. Change
+  // the ip address to where the server is listening
+  std::shared_ptr&lt;TAsyncSocket&gt; socket(
+    TAsyncSocket::newSocket(&amp;base, "127.0.0.1", port));
+
+  // Create a HeaderClientChannel object which is used in creating
+  // client object
+  auto client_channel = HeaderClientChannel::newChannel(socket);
+  // Create a client object
+  CalculatorAsyncClient client(std::move(client_channel));
+  // Invoke the add function on server. As we are doing async
+  // invocation of the function, we do not immediately get
+  // the result. Instead we get a future object.
+  folly::wangle::Future&lt;int64_t&gt; f = client.future_add(2, 3);
+  // Set the callback on the future object. The callback is called
+  // when the result is received from server
+  f.then(
+      [](Try&lt;int64_t&gt;&amp;&amp; t) {
+        // We received the result from server
+        cout &lt;&lt; "result = " &lt;&lt; t.value() &lt;&lt; endl;
+      });
+  base.loop();
+}
+</code></pre>
+
+<p>Compile the client with command</p>
+
+<pre><code>g++ -o client client.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
+</code></pre>
+
+<p><br/>
+Now to see the thrift example in action: Open two bash shell and from one run server and from another run client</p>
+
+<p><br/>
+<strong>If you get compilation errors like thrift header not found or undefined references then check if you have <a href="https://github.com/facebook/fbthrift/blob/master/README.md">correctly installed</a> the thrift</strong></p>
+
+<p><br/></p>
+
+<h4>Function names in generated code</h4>
+
+<p>In the above example, we have implemented async_tm_add function on server side and called future_add from client side. Actually there are various names generated for the same service you define in IDL file. At very broad level, you can group these functions in two groups: sync and async. From both server and client side, you are given sync async versions of the function. You can implement and call(from client) both sync and async version. Also there are many variation of a function in async group but they do exactly the same thing. Depending on your choice, you should pick one of them. In the above example, only async functions are used. If you want to use sync version, please try yourself.</p>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/thrift/intro.html">&#x2039 Introduction</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/thrift/thrift.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/thrift/client_server_server.html">Server to server communication example &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+    var sc_project=6460274; 
+    var sc_invisible=1; 
+    var sc_security="a8560755"; 
+    </script>
+    <script type="text/javascript"
+    src="http://www.statcounter.com/counter/counter.js"></script>
+    <noscript><div class="statcounter"><a title="free hit
+    counter" href="http://statcounter.com/free-hit-counter/"
+    target="_blank"><img class="statcounter"
+    src="http://c.statcounter.com/6460274/0/a8560755/1/"
+    alt="free hit counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+
+  </body>
+</html>

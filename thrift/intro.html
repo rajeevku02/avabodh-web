@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Introduction</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<link rel="stylesheet" href="/highlight/xcode.css">
+<script src="/highlight/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Introduction</h1>
+
+<p><br/>
+Thrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for "scalable cross-language services development".</p>
+
+<p>Facebook <a href="https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/">re-open sourced</a> the thrift with various enhancements. It includes a new code generator and framework for c++ called <strong>cpp2</strong>. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling little bit I <a href="https://github.com/facebook/fbthrift/issues/21">found</a> that python version of the compiler can be used to generate cpp2 style code.
+<br/>
+To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrift/blob/master/thrift/doc/Cpp2.md">this link</a>.</p>
+
+<p><br/></p>
+
+<h4>About this tutorial</h4>
+
+<p>This tutorial will help you to understand and use the fbthrift cpp2 framework. This tutorial is an incomplete guide because:</p>
+
+<ul>
+<li>The fbthrift supports many different languages but this tutorial only covers c++ with cpp2 framework.</li>
+<li>It also does not cover all aspects of the cpp2 framework. For example there are various compiler options for cpp2 code generation.</li>
+</ul>
+
+<p>I came up with the content of this tutoral by mostly reading the thrift source code. At the time writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.</p>
+
+<p><br/></p>
+
+<h4>Prerequisite</h4>
+
+<ul>
+<li>You should know C++ with some of the C++11 constructs e.g. lambda expression</li>
+<li>Event driven programming concepts. If you have never done any event driven programming before, then it is highly recommended that try out at least one libevent example</li>
+<li>At the time of writing this article, the cpp2 framework is only supported on Linux so you should have a Linux box to try out examples in this tutorial</li>
+</ul>
+
+<p><br/></p>
+
+<h4>Installing thrift</h4>
+
+<p>Get the code from <a href="https://github.com/facebook/fbthrift">Github</a> and follow the instructions in <a href="https://github.com/facebook/fbthrift/blob/master/README.md">README</a> file</p>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/thrift/thrift.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/thrift/client_server.html">A simple client server example &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+    var sc_project=6460274; 
+    var sc_invisible=1; 
+    var sc_security="a8560755"; 
+    </script>
+    <script type="text/javascript"
+    src="http://www.statcounter.com/counter/counter.js"></script>
+    <noscript><div class="statcounter"><a title="free hit
+    counter" href="http://statcounter.com/free-hit-counter/"
+    target="_blank"><img class="statcounter"
+    src="http://c.statcounter.com/6460274/0/a8560755/1/"
+    alt="free hit counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+
+  </body>
+</html>

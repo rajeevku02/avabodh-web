@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thrift language</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<link rel="stylesheet" href="/highlight/xcode.css">
+<script src="/highlight/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Thrift language</h1>
+
+<p><br/></p>
+
+<h4>Type</h4>
+
+<p>The thrift type system consists of predefined base types, containers, user defined struct, enum and exception</p>
+
+<p><br/></p>
+
+<h4>Base type and containers</h4>
+
+<pre><code>/**
+ * The available types in Thrift are:
+ *
+ *  bool        Boolean, one byte
+ *  byte        Signed byte
+ *  i16         Signed 16-bit integer
+ *  i32         Signed 32-bit integer
+ *  i64         Signed 64-bit integer
+ *  double      64-bit floating point value
+ *  string      String
+ *  map&lt;t1,t2&gt;  Map from one type to another
+ *  list&lt;t1&gt;    Ordered list of one type
+ *  set&lt;t1&gt;     Set of unique elements of one type
+ *
+ */
+</code></pre>
+
+<p><br/></p>
+
+<h4>User defined types</h4>
+
+<pre><code>/**
+ * You can define enums, which are just 32 bit integers. Values are optional.
+ * If no constant value is supplied, the value is either 0 for the
+ * first element, or one greater than the preceding value for any subsequent element.
+ */
+enum Operation {
+  ADD = 1,
+  SUBTRACT = 2,
+  MULTIPLY = 3,
+  DIVIDE = 4
+}
+
+/**
+ * Structs are the basic complex data structures. They are comprised of fields
+ * which each have an integer identifier, a type, a symbolic name, and an
+ * optional default value.
+ *
+ * Fields can be declared "optional", which ensures they will not be included
+ * in the serialized output if they aren't set.
+ */
+struct Work {
+  1: i32 num1 = 0,
+  2: i32 num2,
+  3: Operation op,
+  4: optional string comment,
+}
+
+/**
+ * Exception is defined in simiar way as struct.
+ */
+exception InvalidOperation {
+  1: i32 what,
+  2: string why
+}
+</code></pre>
+
+<p><br/></p>
+
+<h4>Defining service</h4>
+
+<pre><code>/**
+ * Services just need a name and can optionally inherit
+ * from another service using the extends keyword.
+ */
+service Calculator extends shared.SharedService {
+
+  /**
+   * A method definition looks like C code. It has a return type, arguments,
+   * and optionally a list of exceptions that it may throw. Note that argument
+   * lists and exception lists are specified using the exact same syntax as
+   * field lists in struct or exception definitions.  NOTE: Overloading of
+   * methods is not supported; each method requires a unique name.
+   */
+
+   void ping(),
+
+   i32 add(1:i32 num1, 2:i32 num2),
+
+   i32 calculate(1:i32 logid, 2:Work w) throws (1:InvalidOperation ouch),
+
+   /**
+    * This method has an oneway modifier. That means the client only makes
+    * a request and does not listen for any response at all. Oneway methods
+    * must be void.
+    *
+    * The server may execute async invocations of the same client in parallel/
+    * out of order.
+    */
+   oneway void zip(),
+}
+</code></pre>
+
+<p><br/></p>
+
+<h4>Misc</h4>
+
+<pre><code>/* Thrift supports C style comments?
+ */
+
+// Thirft also support simple C comments too.
+
+/**
+ * Thrift files can reference other Thrift files to include common struct
+ * and service definitions. These are found using the current path, or by
+ * searching relative to any paths specified with the -I compiler flag.
+ *
+ * Included objects are accessed using the name of the .thrift file as a
+ * prefix. i.e. shared.SharedObject
+ */
+include "shared.thrift"
+
+/**
+ * Thrift files can namespace, package, or prefix their output in various
+ * target languages.
+ */
+namespace cpp tutorial
+namespace java tutorial
+php_namespace tutorial
+namespace perl tutorial
+namespace smalltalk.category Thrift.Tutorial
+
+/**
+ * Thrift lets you do typedefs to get pretty names for your types. Standard
+ * C style here.
+ */
+typedef i32 MyInteger
+
+/**
+ * Thrift also lets you define constants for use across languages. Complex
+ * types and structs are specified using JSON notation.
+ */
+const i32 INT32CONSTANT = 9853
+const map&lt;string,string&gt; MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
+</code></pre>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/thrift/http.html">&#x2039 Embedding http server inside thrift server</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/thrift/thrift.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/thrift/internals.html">Thrift internals &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+    var sc_project=6460274; 
+    var sc_invisible=1; 
+    var sc_security="a8560755"; 
+    </script>
+    <script type="text/javascript"
+    src="http://www.statcounter.com/counter/counter.js"></script>
+    <noscript><div class="statcounter"><a title="free hit
+    counter" href="http://statcounter.com/free-hit-counter/"
+    target="_blank"><img class="statcounter"
+    src="http://c.statcounter.com/6460274/0/a8560755/1/"
+    alt="free hit counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+
+  </body>
+</html>

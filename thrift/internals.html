@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thrift internals</title>
+    <meta name="author" content="Rajeev Kumar">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+    
+<link rel="stylesheet" href="/highlight/xcode.css">
+<script src="/highlight/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+  </head>
+  <body>
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Avabodh</a>
+        </div> 
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li  ><a href="/">Home</a></li>
+            <li  ><a href="/apps">Apps</a></li>
+            <li  ><a href="http://blog.avabodh.com/">Blog</a></li>
+            <li class="active" ><a href="/articles">Articles</a></li>
+            <li  ><a href="/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      
+    
+      <h1>Thirft internals</h1>
+
+<p><br/>
+<strong>Warning</strong>: The content on this page is based on my understanding of thrift design by reading some parts of thrift source code. The content may go outdated in future if the thrift design changes. The thrift version at the time of writing this tutorial is 15.0</p>
+
+<p><br/></p>
+
+<h4>Facebook developers love threads!!</h4>
+
+<p>First time when I ran the <a href="/thrift/client_server.html">server example</a>, I was surprised to see that there are 12 threads (including the main thread) in the server process. I ran the server on a <a href="http://www.linode.com">linode</a> VM which had one virtual CPU.
+<br/>
+Now let us change the server code little bit</p>
+
+<pre><code>int main(int argc, char **argv) {
+  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
+  ThriftServer* s = new ThriftServer();
+  s-&gt;setNWorkerThreads(1);
+  s-&gt;setNPoolThreads(1);
+  s-&gt;setInterface(ptr);
+  s-&gt;setPort(8080);
+  s-&gt;serve();
+  return 0;
+}
+</code></pre>
+
+<p>Even after this change, number of threads are 12 in the server process. Seems that the cpp2 framework is not honoring the thread count parameters that we set.</p>
+
+<p><br/>
+Before we go into the internal design of the thrift to understand the threading model, we should know the reason behind having so many threads. If you follow this <a href="https://github.com/facebook/folly/blob/master/folly/io/async/README.md">link (README)</a>, at the end of this readme file you will find <strong>Generic Multithreading Advice</strong>. This explains why having multiple threads is good for performance. At the same time it also states that if number of thread is more than available CPU cores, then it degrades the performance.</p>
+
+<p><strong>If you are evaluating thrift from performance point of view, then you should be very careful about on how many CPU cores you are evaluating.</strong> To achieve the peak performance of thrift, you should have number of cores at least to the number threads the server process spawns.</p>
+
+<p><br/></p>
+
+<h4>Inside the thrift server</h4>
+
+<p>This is based on the code inside <em>fbthrift/thrift/lib/cpp2/server/</em> folder. Some of the concepts used in the code are</p>
+
+<ul>
+<li><strong>Thrift Server</strong>: This is implemented in ThriftServer class. This is the class that you instantiate from your main function. The main purpose the this class to do initialization of various data structures then start listening on a socket. Once a connection is accepted, then the connection is not handled by ThriftServer itself, rather it is handed over to a thread from IOThreadPoolExecutor. The further communication on the accepted connection is done in the thread from IOThreadPoolExecutor.</li>
+<li><strong>IOThreadPoolExecutor</strong>: This is a class defined in folly/experimental/wangle/concurrent. The ThriftServer class contains a member variable ioThreadPool_ of type IOThreadPoolExecutor. This class manages a pool of threads. Each thread in this pool runs an io event loop. When ThriftServer accepts a connection, then one thread from this pool is assigned to do further communication on the accepted connection. The code for handling new connection is in Cpp2Worker class. The number of threads in this thread pool can be controlled by calling ThriftServer.setNWorkerThreads(count).</li>
+<li><strong>Cpp2Worker</strong>: The code in this class handles a new connection which is accepted by ThriftServer. This code is run by a thread from IOThreadPoolExecutor. Single Cpp2Worker can manages multiple socket connections. Each connection is represented by a instance of Cpp2Conection. So the Cpp2Worker contains a collection of Cpp2Connection instances. The request received on a connection is handled by code defined in Cpp2Connection.</li>
+<li><strong>Cpp2Connection</strong>: A single Cpp2Connection handles a single socket connection. Any incoming request data on a socket is handled by Cpp2Connection::requestReceived function. This function calls Processor::process function for decoding the function ID and params and then calling the service function(for example add function in our first <a href="/thrift/client_server.html">example</a>)</li>
+<li><strong>Processor</strong>: Processor is mostly generated code by the thrift compiler. Some part of the processor code is also present in thrift/lib/cpp2/async/AsyncProcessor.h. The processor code decodes the function ID and function argument from the data received from the socket then determine which service function (for example add function in our first <a href="/thrift/client_server.html">example</a>) to be called and call that function. Based on a switch in the trift compiler, then service function can be called in a separate thread. Please note that code of Cpp2Worker, Cpp2Connection and Processor runs in a thread from IOThreadPoolExecutor. If <strong><em>process_in_event_base</em></strong> flag is passed to thrift compiler, then the service function is called in the same thread otherwise it is called on a separate thread. The other tread is picked from a thread pool which is managed by ThreadManager class.</li>
+<li><strong>ThreadManager</strong>: Thread manager manages pool of threads used for calling service function. The ThreadManager is a base class and there are various implementation of it. You can even set you own ThreadManager implementation in ThriftServer by calling setThreadManager function. The ThreadManager does not create thread itself, instead it uses ThreadFactory to create a new thread for the pool. ThriftServer::setNPoolThreads is meant to control the number of threads in the thread manager pool but does not seem to work.</li>
+<li><strong>ThreadFactory</strong>: The thread factory is used to create thread for IOThreadPoolExecutor as well as ThreadManager. There are quite a few thread factories inside thrift server to create threads. You can also provide your own implementation of the thread factory to thrift server.</li>
+<li><strong>SaslThreadManager</strong>: The thrift provides <a href="http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer">Sasl</a> authentication mechanism. The authentication work is done in a separate thread and this thread is managed by SaslThreadManager. The Sasl authentication can be disabled by providing command line argument sasl_policy=disabled</li>
+<li><strong>NumaThreadManager</strong>: If you do not provide any thread manager to thrift server, then NumaThreadManager is used. The logic inside this thread manager is little complex. It is <a href="http://en.wikipedia.org/wiki/Non-uniform_memory_access">Numa</a> aware thread management. It also allows to define priority of server tasks. Actually it is the NumaThreadManager which does not honor the thread count set by <strong>ThriftServer::setNPoolThreads()</strong></li>
+</ul>
+
+<p><br/>
+Some of the above concepts can be expressed by this diagram:</p>
+
+<p><img src="/images/thrift/thrift1.png" alt="Thrift internal diagram" style="width: 450px;"/>
+<img src="/images/thrift/thrift2.png" alt="Thrift internal diagram" style="width: 450px;"/></p>
+
+<p><br/></p>
+
+<h4>I want to control the number of threads in my server process</h4>
+
+<p><br/>
+There are mainly three types of thread in ThriftServer. They are:</p>
+
+<p><img src="/images/thrift/thrift4.png" alt="Thrift internal diagram" style="width: 500px;"/></p>
+
+<p>The ThriftServer provides two functions to control the number of threads: setNWorkerThreads and setNPoolThreads. The setNWorkerThreads works fine but the NumaThreadManager does not honor the setNPoolThreads. There are various possibilities to fix this</p>
+
+<ol>
+<li>Fix NumaThreadManager. Afterall, thrift is open source. Do it if you have time.</li>
+<li>Provide your own implementation of ThreadManager. Probably you should not be doing this.</li>
+<li>Tell ThriftServer to use SimpleThreadManager. The SimpleThreadManager is defined inside the thrift code but it is not smart thread manager as NumaThreadManager</li>
+<li>Run the service function in the IOThreadPoolExecutor thread itself rather than in a separate thread. And you can control the number of threads in IOThreadPoolExecutor.</li>
+</ol>
+
+<p><br/>
+Let us see how #4 can be used
+From the <a href="thrift/client_server.html">first example</a>, compile the calculator.thrift as</p>
+
+<pre><code>python -m thrift_compiler.main --gen cpp2:process_in_event_base calculator.thrift
+</code></pre>
+
+<p>Then change the server code to</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include "gen-cpp2/Calculator.h"
+#include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
+
+using namespace std;
+using namespace apache::thrift;
+using namespace example::cpp2;
+
+DECLARE_string(sasl_policy);
+
+class CalculatorSvc : public CalculatorSvIf
+{
+ public:
+  virtual ~CalculatorSvc() {}
+  void async_eb_add(
+    std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
+    int32_t num1,
+    int32_t num2) {
+    callback-&gt;result(num1 + num2);
+  }
+};
+
+int main(int argc, char **argv) {
+  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
+  // Disable Sasl. It can be done on commandline too
+  FLAGS_sasl_policy = "disabled";
+  ThriftServer* s = new ThriftServer();
+  s-&gt;setNWorkerThreads(1);
+  // Tell thrift server to not use NumaThreadManager
+  s-&gt;setThreadManager(
+    apache::thrift::concurrency::ThreadManager::newSimpleThreadManager());
+  s-&gt;setInterface(ptr);
+  s-&gt;setPort(8080);
+  s-&gt;serve();
+  return 0;
+}
+</code></pre>
+
+<p>Compile the server as done previously. And run the server. Now the server process has only two threads including the main thread. Now we do not have any thread manager thread. There is a main thread on which thrift server listens and another IOThreadPoolExecutor thread which receives the request and call the service function in the same thread. If you want, you can increase the number of threads in IOThreadPoolExecutor.
+Also Sasl is disabled in this code. You can enable it if you need it. If enabled, it will create a separate thread.</p>
+
+<p><br/></p>
+
+<h4>Simplifying the server to server communication example</h4>
+
+<p>In <a href="/thrift/client_server_server.html">server to server communication example</a>, we had to run code in separate thread. Now because we are running the service function in the IOThreadPoolExecutor thread, we do not need to delegate the work in other thread.
+Now remove the async_tm_add function from that code and add this function</p>
+
+<pre><code>void async_eb_add(
+  std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
+  int32_t num1,
+  int32_t num2)
+{
+  cout &lt;&lt; "Got async request " &lt;&lt; num1 &lt;&lt; " + " &lt;&lt; num2 &lt;&lt; endl;
+  CallbackWrapper cb(callback);
+  CalculatorAsyncClient* client = getClient(cb.ptr-&gt;getEventBase());;
+  // Make the add function call on the real server
+  folly::wangle::Future&lt;int64_t&gt; f = client-&gt;future_add(num1, num2);
+  f.then(
+      [cb](Try&lt;int64_t&gt;&amp;&amp; t) {
+      // Now we have received the response from real calculator server
+      // respond to the client with the same result
+      cout &lt;&lt; "Received response from other server" &lt;&lt; endl;
+      cb.ptr-&gt;result(t.value());
+      });
+}
+</code></pre>
+
+
+      
+    <hr>
+    <div class="row">
+      <div class="col-md-4 align_left">
+       
+       <a href="/thrift/lang.html">&#x2039 Thrift language</a>
+       
+      </div>
+      <div class="col-md-4 align_center">
+       
+       <a href="/thrift/thrift.html">up</a>
+       
+      </div>
+      <div class="col-md-4 align_right">
+       
+       <a href="/thrift/conclusion.html">Conclusion &#x203a</a>
+       
+      </div>
+    </div>
+    <hr>
+
+      <br><br><br>
+      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
+    </div>
+    <script src="/jquery-1.10.2.min.js"></script>
+    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+    var sc_project=6460274; 
+    var sc_invisible=1; 
+    var sc_security="a8560755"; 
+    </script>
+    <script type="text/javascript"
+    src="http://www.statcounter.com/counter/counter.js"></script>
+    <noscript><div class="statcounter"><a title="free hit
+    counter" href="http://statcounter.com/free-hit-counter/"
+    target="_blank"><img class="statcounter"
+    src="http://c.statcounter.com/6460274/0/a8560755/1/"
+    alt="free hit counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+
+  </body>
+</html>
