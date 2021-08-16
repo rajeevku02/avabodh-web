@@ -43,7 +43,7 @@
 <p><br/>
 Thrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for "scalable cross-language services development".</p>
 
-<p>Facebook <a href="https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/">re-open sourced</a> the thrift with various enhancements. It includes a new code generator and framework for c++ called <strong>cpp2</strong>. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling little bit I <a href="https://github.com/facebook/fbthrift/issues/21">found</a> that python version of the compiler can be used to generate cpp2 style code.
+<p>Facebook <a href="https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/">re-open sourced</a> the thrift with various enhancements. It includes a new code generator and framework for c++ called <strong>cpp2</strong>. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling a little bit I <a href="https://github.com/facebook/fbthrift/issues/21">found</a> that the python version of the compiler can be used to generate cpp2 style code.
 <br/>
 To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrift/blob/master/thrift/doc/Cpp2.md">this link</a>.</p>
 
@@ -58,7 +58,7 @@ To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrif
 <li>It also does not cover all aspects of the cpp2 framework. For example there are various compiler options for cpp2 code generation.</li>
 </ul>
 
-<p>I came up with the content of this tutoral by mostly reading the thrift source code. At the time writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.</p>
+<p>I came up with the content of this tutorial by mostly reading the thrift source code. At the time of writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.</p>
 
 <p><br/></p>
 

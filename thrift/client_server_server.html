@@ -40,13 +40,13 @@
     
       <h1>Server to server communication example</h1>
 
-<p>In the <a href="/thrift/client_server.html">previous example</a> we have leant how a client can communicate to a server. There are cases when one service may need to communicate to another service. Now we will learn how to make a server to call functions on another server.
+<p>In the <a href="/thrift/client_server.html">previous example</a> we have learnt how a client can communicate to a server. There are cases when one service may need to communicate to another service. Now we will learn how to make a server to call functions on another server.
 <br/>
 Now we will extend the previous example. Let us introduce an intermediate server and call it server_mid. This server will implement the Calculator service but instead of calculating the value itself, it will call add function on another Calculator server and then upon receiving the response, it will simply reply to the client with whatever it received from the other server.
 <br/>
 <img src="/images/thrift/thrift3.png" alt="Thrift internal diagram" style="width: 600px;"/>
 <br/>
-This server simply acts as proxy. But in a real world problem, a server may be doing much more than simply proxying. Purpose of this example is only to demonstrate how a server can communicate to another server so the logic inside the proxy server is kept very minimal.</p>
+This server simply acts as a proxy. But in a real world problem, a server may be doing much more than simply proxying. Purpose of this example is only to demonstrate how a server can communicate to another server so the logic inside the proxy server is kept very minimal.</p>
 
 <p><br/>
 Now we have three processes</p>
@@ -54,7 +54,7 @@ Now we have three processes</p>
 <ul>
 <li>A calculator server. The code is same as in the previous example</li>
 <li>A calculator proxy. The code is given below. This server will listen on 8081 port</li>
-<li>A client. The code is same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)</li>
+<li>A client. The code is the same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)</li>
 </ul>
 
 <p>The proxy server (server_mid.cpp)</p>
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
 From the previous example, change the port number in client.cpp to 8081 and compile the client.</p>
 
 <p><br/>
-Now open 3 bash shell. From the first, run server from the 2nd, run server_mid then run client from the 3rd shell.</p>
+Now open 3 bash shells. From the first, run server from the 2nd, run server_mid then run client from the 3rd shell.</p>
 
 <p><br/>
 If you want more explanation of why te->runInEventBaseThread was done, then refer to <a href="/thrift/internals.html">Thrift internals</a>.</p>

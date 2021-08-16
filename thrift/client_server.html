@@ -44,13 +44,13 @@
 
 <h4>Thrift IDL</h4>
 
-<p>To create a service in thrift, you need to first define the service in IDL file. The IDL file is then used to generate skeleton code/interface in different languages. Then you need to implement the skeleton code or the interface to implement the service you need to create. In this tutorial we will learn how to implement services in C++</p>
+<p>To create a service in thrift, you need to first define the service in an IDL file. The IDL file is then used to generate skeleton code/interface in different languages. Then you need to implement the skeleton code or the interface to implement the service you need to create. In this tutorial we will learn how to implement services in C++</p>
 
 <p><br/></p>
 
 <h4>Calculator service</h4>
 
-<p>Let us create a simple calculator service. The service will provide an add function. The function will take two numbers as argument and return sum of these two numbers as result. The server will implement the add function and a client from different process will call the add function.<br/></p>
+<p>Let us create a simple calculator service. The service will provide an add function. The function will take two numbers as argument and return the sum of these two numbers as result. The server will implement the add function and a client from different process will call the add function.<br/></p>
 
 <p>The IDL for the calculator service (calculator.thrift)</p>
 
@@ -99,7 +99,7 @@ class CalculatorSvc : public CalculatorSvIf
     // callback. The function may immediately return and later when
     // the result is ready then it will return the result via
     // callback. In this example, we are returning the result
-    // before returning the function but this may not be always true.
+    // before returning the function but this may not always be true.
     std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
     // num1 is a parameter of add function. Its value will be passed from client
     int32_t num1,
@@ -160,7 +160,7 @@ int main()
   auto client_channel = HeaderClientChannel::newChannel(socket);
   // Create a client object
   CalculatorAsyncClient client(std::move(client_channel));
-  // Invoke the add function on server. As we are doing async
+  // Invoke the add function on the server. As we are doing async
   // invocation of the function, we do not immediately get
   // the result. Instead we get a future object.
   folly::wangle::Future&lt;int64_t&gt; f = client.future_add(2, 3);
@@ -190,7 +190,7 @@ Now to see the thrift example in action: Open two bash shell and from one run se
 
 <h4>Function names in generated code</h4>
 
-<p>In the above example, we have implemented async_tm_add function on server side and called future_add from client side. Actually there are various names generated for the same service you define in IDL file. At very broad level, you can group these functions in two groups: sync and async. From both server and client side, you are given sync async versions of the function. You can implement and call(from client) both sync and async version. Also there are many variation of a function in async group but they do exactly the same thing. Depending on your choice, you should pick one of them. In the above example, only async functions are used. If you want to use sync version, please try yourself.</p>
+<p>In the above example, we have implemented async_tm_add function on the server side and called future_add from the client side. Actually there are various names generated for the same service you define in the IDL file. At a very broad level, you can group these functions in two groups: sync and async. From both server and client side, you are given sync async versions of the function. You can implement and call(from client) both sync and async versions. Also there are many variations of a function in async group but they do exactly the same thing. Depending on your choice, you should pick one of them. In the above example, only async functions are used. If you want to use the sync version, please try yourself.</p>
 
 
       
