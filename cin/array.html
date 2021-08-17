@@ -134,7 +134,7 @@ color:#5478D6;
     
       <h1>Array Indexing</h1><br>
 <div class="contentText">Take this C code as example:
-<pre class="code">// this line is defined globaly
+<pre class="code">// this line is defined globally
 int globalArr[5];
 // these lines are part of some function
 int b;
@@ -144,7 +144,7 @@ localArr[0] = 3;
 localArr[4] = 18;
 b = localArr[4];
 </pre>
-Gnerated assembly code:
+Generated assembly code:
 <pre class="assemblycode">movl    $12, globalArr+8
 movl    $3, -24(%ebp)
 movl    $18, -8(%ebp)
@@ -155,7 +155,7 @@ Location of local variables of the stack (local variables are explained <a href=
 <pre class="freeText">b =&gt; -4(%ebp)
 localArr =&gt; -24(%ebp) to -4(%ebp)
            [excluding the memory location pointed by -4(%ebp) ]
-           The localArr of length 5; each element in array is of 4 bytes.
+           The localArr of length 5; each element in the array, is of 4 bytes.
            So total space by local var = 20 bytes.
 </pre>
 The use of registers as temporary memory is described <a href="arithmeticop.html#tempVaribaleUsage">here</a><br /> Comments on generated assembly code:
@@ -180,7 +180,7 @@ movl	$12, globalArr+8
 </pre>
 </div>
 <br /><div class="contentTitle"><h1>Array indexing using pointers</h1></div><div class="contentText">Take this C code as example:
-<pre class="code">// This line if defined globally.
+<pre class="code">// This line is defined globally.
 int globalArr[5];
 // these lines are part of some function
 int b;

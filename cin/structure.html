@@ -133,7 +133,7 @@ color:#5478D6;
       
     
       <h1>Memory Allocation for Structure</h1><br>
-<div class="contentText"><p class="contentPara">If we create an object of some structure, then compiler allocate contiguous memory for the data members of the structure. The size of allocated memory is at least the sum of sizes of all data members. The compiler can use padding and in that case there is will be unused space created between two data members. The padding is done for the alignment of data member which makes the access to the member faster. However you can control the padding behavior and can stop compiler to generated extra space.<br /> The data members of structure is accessed with the help of the base address of the structure and the offset of the data member in the structure object.</p>Lets see this in an example.<br /> C code:<br /><pre class="code">struct data_struct
+<div class="contentText"><p class="contentPara">If we create an object of some structure, then the compiler allocates contiguous memory for the data members of the structure. The size of allocated memory is at least the sum of sizes of all data members. The compiler can use padding and in that case there will be unused space created between two data members. The padding is done for the alignment of data members which makes the access to the member faster. However you can control the padding behavior and can stop the compiler to generate extra spaces.<br /> The data members of a structure are accessed with the help of the base address of the structure and the offset of the data member in the structure object.</p>Lets see this in an example.<br /> C code:<br /><pre class="code">struct data_struct
 {
     int a;
     int b;
@@ -177,7 +177,7 @@ Similarly the local_data member will be accessed as
 <pre class="freeText">local_data.a ==&gt; -8(%ebp)
 local_data.b ==&gt; -4(%ebp)
 </pre>
-<br />The local_data is allocated on the stack on the memory range -8(%ebp) to (%ebp)<br /> Goto <a href="memorymanagement.html">here</a> for details of local variables allocation.<br /><br /><span class="boldText">Structure and padding</span><br /><p class="contentPara">The compiler often allocate some empty space between two members of a structure to make the accessing the each member faster. This is called padding. The size of alignment is mostly dependent in processor architecture.</p>Lets take and example
+<br />The local_data is allocated on the stack on the memory range -8(%ebp) to (%ebp)<br /> Goto <a href="memorymanagement.html">here</a> for details of local variables allocation.<br /><br /><span class="boldText">Structure and padding</span><br /><p class="contentPara">The compiler often allocates some empty space between two members of a structure to make accessing each member faster. This is called padding. The size of alignment is mostly dependent on a processor architecture.</p>Lets take and example
 <pre class="code">struct data_struct
 {
     char a;
@@ -191,14 +191,14 @@ local_data.b ==&gt; -4(%ebp)
 	int b;
 } __attribute__((packed));
 </pre>
-<p class="contentPara">Then sizeof(struct data_struct) on i386 will come to 5. The __attribute__((packed)) has forced compiler not to do padding and waste space. This attribute can be also applied on individual data member of the struct.</p>For example:-
+<p class="contentPara">Then sizeof(struct data_struct) on i386 will come to 5. The __attribute__((packed)) has forced the compiler not to do padding and waste space. This attribute can be also applied on individual data members of the struct.</p>For example:-
 <pre class="code">struct data_struct
 {
     char a;
     int b __attribute__((packed));
 };
 </pre>
-<p class="contentPara">This declaration says do not do padding between data member a and b. The __attribute__ can be also used to increase the alignment boundary. Look the compiler documentation for details on this.</p><span class="boldText">Function returning structure</span><br /><p class="contentPara">We have seen previously that the the function returns through eax register for basic data types. But structure can not be returned by eax register because the the size of eax register is only 4 bytes but the structure can be any size. To return structure, compiler can use different strategies.</p>Lets see how gcc works with an example:<br /> The C code:
+<p class="contentPara">This declaration says do not do padding between data member a and b. The __attribute__ can be also used to increase the alignment boundary. Look at the compiler documentation for details on this.</p><span class="boldText">Function returning structure</span><br /><p class="contentPara">We have seen previously that the function returns through eax register for basic data types. But structure can not be returned by the eax register because the size of the eax register is only 4 bytes but the structure can be of any size. To return structure, compilers can use different strategies.</p>Let's see how gcc works with an example:<br /> The C code:
 <pre class="code">struct data_struct
 {
     int a;
@@ -263,7 +263,7 @@ int main()
     return 0;
 }
 </pre>
-<p class="contentPara">The compiler has passed a pointer to the function of the data type which will be returned. Here are two things to notice</p><ul><li>The function which was returning some struct, was made to void. It will not return via eax register.</li><li>The function got extra argument of the type pointer to the structure which it was returning in the original code.</li></ul></div>
+<p class="contentPara">The compiler has passed a pointer to the function of the data type which will be returned. Here are two things to notice</p><ul><li>The function which was returning some struct, was made to void type. It will not return via eax register.</li><li>The function got an extra argument of the type pointer to the structure which it was returning in the original code.</li></ul></div>
 
 
       

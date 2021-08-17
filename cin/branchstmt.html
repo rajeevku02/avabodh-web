@@ -288,7 +288,7 @@ The use of registers as temporary memory is described <a href="arithmeticop.html
 # label just after the switch-case block
 .L5:
 </pre>
-<p class="contentPara">At the end of the code of the each case block (except default) there is jump statement to the end of the switch-case. This jump is generated becuase you wrote break statement in the case block. If you do not write the break then this jump will not be generated and code for the next case block will be executed. This is in accordance with C specification.</p><br /></div>
+<p class="contentPara">At the end of the code of each case block (except default) there is a jump statement to the end of the switch-case. This jump is generated because you wrote a break statement in the case block. If you do not write the break then this jump will not be generated and code for the next case block will be executed. This is in accordance with C specification.</p><br /></div>
 
 
       

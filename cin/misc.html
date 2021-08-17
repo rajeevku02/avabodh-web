@@ -133,7 +133,7 @@ color:#5478D6;
       
     
       <h1>Miscellaneous</h1><br>
-<div class="contentText"><span class="boldText">Generating code in a particular segment</span><p class="contentPara">The gcc generate assembly code for functions in .text and global varibales in either .data or .bss segments. There is predefined rules of which segment the gcc will generate the code of some kind (function, global variables etc). Programmers can override the behavior. The segment can be controller.</p>Lets see an example.<br /> Here is a c code
+<div class="contentText"><span class="boldText">Generating code in a particular segment</span><p class="contentPara">The gcc generates assembly code for functions in .text and global variables in either .data or .bss segments. There are predefined rules of which segment the gcc will generate the code of some kind (function, global variables etc). Programmers can override the behavior. The segment can be controlled.</p>Lets see an example.<br /> Here is a c code
 <pre class="code">void __attribute__ ((section ("MySegment"))) fun()
 {
 }
@@ -143,7 +143,7 @@ int main()
     return 0;
 }
 </pre>
-<p class="contentPara">compile this file using gcc and genrate a.out file. Now inspect the a.out file using objdump command as</p><span class="boldText2">objdump -h a.out</span><br /><br /> This command will show various segments inside the a.out. It will show one segment called MySegment.<br /> The __attribute__ can be applied on global variables.<br /></div>
+<p class="contentPara">compile this file using gcc and generate a.out file. Now inspect the a.out file using objdump command as</p><span class="boldText2">objdump -h a.out</span><br /><br /> This command will show various segments inside the a.out. It will show one segment called MySegment.<br /> The __attribute__ can be applied on global variables.<br /></div>
 
 
       

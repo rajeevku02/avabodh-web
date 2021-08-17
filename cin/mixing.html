@@ -134,13 +134,13 @@ color:#5478D6;
     
       <h1>Mixing C and Assembly</h1><br>
 <div class="contentText"><span class="boldText">Defining in assembly and using in C</span><br /> The assembly code which defines functions and variables:
-<pre class="assemblycode"># define a global variable asm_var and export it so that C code can use.
+<pre class="assemblycode"># define a global variable asm_var and export it so that C code can use it.
 .data
 .global asm_var
 asm_var:
 .long
 
-# define a function asm_fun and export it so that C code can use.
+# define a function asm_fun and export it so that C code can use it.
 .text
 .global asm_fun
 asm_fun:
@@ -157,7 +157,7 @@ void main()
 	asm_var++;
 }
 </pre>
-Points to understand:<br /><ul><li>Assembly code can define variables and functions which can be used in C program.</li><li>The assembly code must export variables and functions which will be used from C code. In this example .global is used to export asm_var and asm_fun.</li><li>The C code should declare variables and function before using. These declaration is similar to what is done in header file. The declaration can be done in c source files or c header files.</li></ul><br /><span class="boldText">Defining in C and using in assembly</span><br /> C code
+Points to understand:<br /><ul><li>Assembly code can define variables and functions which can be used in C program.</li><li>The assembly code must export variables and functions which will be used from C code. In this example .global is used to export asm_var and asm_fun.</li><li>The C code should declare variables and function before using. These declarations are similar to what is done in the header file. The declaration can be done in c source files or c header files.</li></ul><br /><span class="boldText">Defining in C and using in assembly</span><br /> C code
 <pre class="code">void fun()
 {
 }
@@ -169,7 +169,7 @@ main:
     call fun
     ret;
 </pre>
-Points to understand:<br /><ul><li>Functions and variables defined in C are always exported unless you use static keyword. You do not have to export each symbol as you do in assembly.</li><li>The assembly can call function or use variables as if they are defined in assembly code itself.</li></ul><br /><span class="boldText">Mixing assembly inside C code</span><br /><p class="contentPara">There are few things that you can not do in pure C code at all. For those things you have to use assembly. For example if you want to raise a hardware exception, then you need to write assembly instruction. C does not provide any syntax to raise hardware exception. To avoid to write code in separate assembly file and call from C code, C provide a way to insert assembly code inside a C code. This is done by asm keyword.</p>Here is an example:
+Points to understand:<br /><ul><li>Functions and variables defined in C are always exported unless you use the static keyword. You do not have to export each symbol as you do in assembly.</li><li>The assembly can call function or use variables as if they are defined in assembly code itself.</li></ul><br /><span class="boldText">Mixing assembly inside C code</span><br /><p class="contentPara">There are few things that you can not do in pure C code at all. For those things you have to use assembly. For example if you want to raise a hardware exception, then you need to write assembly instructions. C does not provide any syntax to raise hardware exceptions. To avoid writing code in separate assembly files and call from C code, C provides a way to insert assembly code inside a C code. This is done by asm keyword.</p>Here is an example:
 <pre class="code">int main()
 {
 	asm("int $3");

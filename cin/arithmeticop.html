@@ -133,7 +133,7 @@ color:#5478D6;
       
     
       <h1>Translation of Arithmetic Operations</h1><br>
-<div class="contentText">Lets us see how an arithmetic expression is translated into assembly code. Take example of this C code:
+<div class="contentText">Let's us see how an arithmetic expression is translated into assembly code. Take example of this C code:
 <pre class="code">int a = 2;
 int b= 3;
 int c = 24;
@@ -164,7 +164,7 @@ Comments on the generated assembly code:
 # tmp = b
     movl    -8(%ebp), %eax
 </pre>
-<p class="contentPara"><a name="tempVaribaleUsage" id="tempVaribaleUsage"></a> The i386 has limitation on number of memory addresses in a single instruction. It can not use arbitrary number of memory addresses in a instruction. So it uses registers as temporary storage. It does arithmetic and other other kinds of operations using registers. A typical way of using the register is that first bring the content from memory to registers, do operation in registers and then store back the the value of registers into the memory. In the example below, the register eax is being used as temporary storage. in the commented code, tmp mean the register eax.</p>
+<p class="contentPara"><a name="tempVaribaleUsage" id="tempVaribaleUsage"></a> The i386 has limitations on the number of memory addresses in a single instruction. It can not use an arbitrary number of memory addresses in an instruction. So it uses registers as temporary storage. It does arithmetic and other other kinds of operations using registers. A typical way of using the register is that first bring the content from memory to registers, do operation in registers and then store back the the value of registers into the memory. In the example below, the register eax is being used as temporary storage. In the commented code, tmp means the register eax.</p>
 <pre class="assemblycode"># a = a + tmp
     addl    %eax, -4(%ebp)
 # tmp = b
@@ -174,7 +174,7 @@ Comments on the generated assembly code:
 # a = tmp + a
     addl    %eax, -4(%ebp)
 </pre>
-<br /><span class="boldText">QUESTION:</span> How will a arithmetic expression translated into assembly code if the arithmetic expression contains brackets?<br /></div>
+<br /><span class="boldText">QUESTION:</span> How will an arithmetic expression translated into assembly code if the arithmetic expression contains brackets?<br /></div>
 
 
       

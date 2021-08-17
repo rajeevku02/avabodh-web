@@ -133,7 +133,7 @@ color:#5478D6;
       
     
       <h1>Returning Value From Function</h1><br>
-<div class="contentText"><p class="contentPara">Function return value can be either returned in a register or on the stack. For all object of basic data types (int, char, pointer etc) is returned in eax register. The structure is returned on stack. We will see this is the next chapter.</p>C code:
+<div class="contentText"><p class="contentPara">Function return value can be either returned in a register or on the stack. For all objects of basic data types (int, char, pointer etc) is returned in eax register. The structure is returned on stack. We will see this is the next chapter.</p>C code:
 <pre class="code">int fun()
 {
     return 16;
@@ -199,7 +199,7 @@ main:
     pushl   %ebp
     movl    %esp, %ebp
 
-# create local variable and make proper alignment of esp register.
+# create local variable and make proper alignment of the esp register.
     subl    $16, %esp
 
 # Call the function fun.
@@ -209,7 +209,7 @@ main:
 # Store this value in local variable a
     movl    %eax, -4(%ebp)
 
-# the main function returns now. It will return value in eax register.
+# the main function returns now. It will return value in the eax register.
     movl    $0, %eax
     leave
     ret

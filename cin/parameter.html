@@ -133,7 +133,7 @@ color:#5478D6;
       
     
       <h1>Parameter Passing</h1><br>
-<div class="contentText"><p class="contentPara">Parameters are passed on the stack. The parameters are pushed on the stack then function call is made. So the parameters are just below the return address. If a function want to read the the parameter, then it read from the stack just below the return address.<br /> Lets see this in an example</p>C code:
+<div class="contentText"><p class="contentPara">The parameters are pushed on the stack and then function calls are made. So the parameters are just below the return address. If a function wants to read the parameters, then it can read from the stack just below the return address.<br /> Let's see this in an example</p>C code:
 <pre class="code">void fun(int x, int y)
 {
     x++;
@@ -170,7 +170,7 @@ Location of local variables of the stack (local variables are explained <a href=
 <pre class="freeText">x ==&gt; 8(%ebp)
 y ==&gt; 12(%ebp), %eax
 </pre>
-<p class="contentPara">This is very much related to what is described in the local variable chapters. The parameters are allocated as the local variables only. There is only one difference is that the local variables are allocated on the top where where the return address is pushed on stack and parameter lies beneath the return address.</p><p>The parameter passing can be explained with this diagram:<br /><img alt="" src="/images/cin/parameter.png" /></p><p><br />Comments on the generated code:</p>
+<p class="contentPara">This is very much related to what is described in the local variable chapters. The parameters are allocated as the local variables only. The only one difference is that the local variables are allocated on the top where the return address is pushed on the stack and the parameters lie beneath the return address.</p><p>The parameter passing can be explained with this diagram:<br /><img alt="" src="/images/cin/parameter.png" /></p><p><br />Comments on the generated code:</p>
 <pre class="assemblycode"># .text segment starts
     .text
 
@@ -209,7 +209,7 @@ main:
 # stack_pointer -= 8
     subl	$8, %esp
 
-# push the second parametr
+# push the second parameter
     movl    $3, 4(%esp)
 
 # push the first parameter
@@ -222,7 +222,7 @@ main:
     leave
     ret
 </pre>
-<br />Points to understand:<br /><ul><li>The parameters are passed left to right. The last parameter in C code is pushed first and first parameter is pushed in the last. So if you scan the stack from top, then first parameter will be found first.</li><li>The generated code does not use the push instruction. Instead it decrement the stack pointer first then add parameter of the space created by decrementing the stack pointer. This have been possibly done for perf reason (subl + movl will may be faster than push + pop).</li><li>If the parameter is of type structure then whole of the structure will be pushed on the stack.</li></ul></div>
+<br />Points to understand:<br /><ul><li>The parameters are passed left to right. The last parameter in C code is pushed first and the first parameter is pushed in the last. So if you scan the stack from top, then the first parameter will be found first.</li><li>The generated code does not use the push instruction. Instead it decrements the stack pointer first then add parameters to the space created by decrementing the stack pointer. This has been possibly done for perf reasons (subl + movl could be faster than push + pop).</li><li>If the parameter is of type structure then the whole of the structure will be pushed on the stack.</li></ul></div>
 
 
       
