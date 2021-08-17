@@ -135,7 +135,7 @@ color:#5478D6;
       <h1>Inheritance</h1>
 <br>
 
-<div class="contentText">Lets consider these two classes -
+<div class="contentText">Let's consider these two classes -
 <pre class="code">class myClassBase
 {
 public:
@@ -179,7 +179,7 @@ int myClassDerived_derivedMethod(struct myClassDerived *this, int x)
     return this-&gt;derivedMember + x;
 }
 </pre>
-<br>The relation between the classes can be described by a diagram as:<br> <img alt="Inheritance" src="/images/cxxin/inheritance1.png"><br> Here are few points to understand this:<ul><li>The first member of the derived structure is of the type base.</li><li>If the object of the derived is casted (using pointers) as the base member, it this will point to first member of the struct which is of type base struct.</li><li>Defining the structure this way helps in implementing the polymorphism (the pointer of derived can used as pointer of base).</li><li>The constructor of the derived class first calls the base class constructor. This ensures that the base class is constructed first then the derived class.</li><li>The constructor of the derived class can specify which constructor of the base class should be called. This is C++ language struct. If nothing is specified, the default constructor(with no parameter) is called.</li><li>Constructor of derived class is called from the code where the object is instantiated. The constructor of of derived class calls the constructor of its base.</li></ul></div><!-- content text-->
+<br>The relation between the classes can be described by a diagram as:<br> <img alt="Inheritance" src="/images/cxxin/inheritance1.png"><br> Here are few points to understand this:<ul><li>The first member of the derived structure is of the type base.</li><li>If the object of the derived is casted (using pointers) as the base member, it will point to the first member of the struct which is of type base struct.</li><li>Defining the structure this way helps in implementing the polymorphism (the pointer of derived can be used as the pointer of the base).</li><li>The constructor of the derived class first calls the base class constructor. This ensures that the base class is constructed first then the derived class.</li><li>The constructor of the derived class can specify which constructor of the base class should be called. This is C++ language struct. If nothing is specified, the default constructor(with no parameter) is called.</li><li>Constructor of the derived class is called from the code where the object is instantiated. The constructor of the derived class calls the constructor of its base.</li></ul></div><!-- content text-->
 
 
       
