@@ -8,8 +8,7 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
+    <link rel="stylesheet" href="/highlight/xcode.css">
 <script src="/highlight/highlight.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
@@ -36,17 +35,14 @@
       </div>
     </div>
     <div class="container">
-      
-    
-      <h1>Embedding http server inside thrift server</h1>
-
-<p><br/>
+      <h1 id="embedding-http-server-inside-thrift-server">Embedding http server inside thrift server</h1>
+<p><br />
 The thrift server allows you to set a http handler for any incoming http request coming on the same port. You can embed http server inside a thrift server for viewing diagnostics/debugging data from the web interface. There may be many other use cases too.</p>
 
-<p><br/>
+<p><br />
 Here is the server code</p>
 
-<pre><code>#include &lt;iostream&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;iostream&gt;
 #include "gen-cpp2/Calculator.h"
 #include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
 
@@ -98,14 +94,14 @@ int main(int argc, char **argv) {
   s-&gt;serve();
   return 0;
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Compile this server in the same way as you compiled the first server example. Run this server and then open a web browser and navigate to http://hostname:8080 (The hostname is the name of the host on which you are running the server. You can also use IP address instead of host name). You will see the browser has received a "Hello World" string. Same server can also serve the calculator client. It is amazing... right?</p>
+<p>Compile this server in the same way as you compiled the first server example. Run this server and then open a web browser and navigate to http://hostname:8080 (The hostname is the name of the host on which you are running the server. You can also use IP address instead of host name). You will see the browser has received a “Hello World” string. Same server can also serve the calculator client. It is amazing… right?</p>
 
-<p><br/>
-<strong>How does it work?</strong> Actually the thrift checks the initial few bytes of any request it receives and check if it matches to one of http methods (e.g. GET, POST, HEAD etc). If it matches then it declares the request as http request and calls http handler.
+<p><br />
+<strong>How does it work?</strong> Actually the thrift checks the initial few bytes of any request it receives and check if it matches to one of http methods (e.g. GET, POST, HEAD etc). If it matches then it declares the request as http request and calls http handler.</p>
 
-      
+
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
@@ -126,6 +122,7 @@ int main(int argc, char **argv) {
     </div>
     <hr>
     <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
+
 
       <br><br><br>
       <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>

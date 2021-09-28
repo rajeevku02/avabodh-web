@@ -8,8 +8,7 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
+    <link rel="stylesheet" href="/highlight/xcode.css">
 <script src="/highlight/highlight.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
@@ -36,22 +35,17 @@
       </div>
     </div>
     <div class="container">
-      
-    
-      <h1>Thirft internals</h1>
-
-<p><br/>
+      <h1 id="thirft-internals">Thirft internals</h1>
+<p><br />
 <strong>Warning</strong>: The content on this page is based on my understanding of thrift design by reading some parts of thrift source code. The content may go outdated in future if the thrift design changes. The thrift version at the time of writing this tutorial is 15.0</p>
 
-<p><br/></p>
-
-<h4>Facebook developers love threads!!</h4>
-
+<p><br /></p>
+<h4 id="facebook-developers-love-threads">Facebook developers love threads!!</h4>
 <p>The first time I ran the <a href="/thrift/client_server.html">server example</a>, I was surprised to see that there are 12 threads (including the main thread) in the server process. I ran the server on a <a href="http://www.linode.com">linode</a> VM which had one virtual CPU.
-<br/>
+<br />
 Now let us change the server code little bit</p>
 
-<pre><code>int main(int argc, char **argv) {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int main(int argc, char **argv) {
   std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
   ThriftServer* s = new ThriftServer();
   s-&gt;setNWorkerThreads(1);
@@ -61,67 +55,63 @@ Now let us change the server code little bit</p>
   s-&gt;serve();
   return 0;
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>Even after this change, the number of threads are 12 in the server process. Seems that the cpp2 framework is not honoring the thread count parameters that we set.</p>
 
-<p><br/>
+<p><br />
 Before we go into the internal design of the thrift to understand the threading model, we should know the reason behind having so many threads. If you follow this <a href="https://github.com/facebook/folly/blob/master/folly/io/async/README.md">link (README)</a>, at the end of this readme file you will find <strong>Generic Multithreading Advice</strong>. This explains why having multiple threads is good for performance. At the same time it also states that if the number of threads is more than available CPU cores, then it degrades the performance.</p>
 
 <p><strong>If you are evaluating the thrift from a performance point of view, then you should be very careful about how many CPU cores you are evaluating on.</strong> To achieve the peak performance of the thrift, you should have the number of cores at least to the number threads the server process spawns.</p>
 
-<p><br/></p>
-
-<h4>Inside the thrift server</h4>
-
+<p><br /></p>
+<h4 id="inside-the-thrift-server">Inside the thrift server</h4>
 <p>This is based on the code inside <em>fbthrift/thrift/lib/cpp2/server/</em> folder. Some of the concepts used in the code are</p>
 
 <ul>
-<li><strong>Thrift Server</strong>: This is implemented in ThriftServer class. This is the class that you instantiate from your main function. The main purpose of this class is to do initialization of various data structures then start listening on a socket. Once a connection is accepted, then the connection is not handled by ThriftServer itself, rather it is handed over to a thread from IOThreadPoolExecutor. The further communication on the accepted connection is done in the thread from IOThreadPoolExecutor.</li>
-<li><strong>IOThreadPoolExecutor</strong>: This is a class defined in folly/experimental/wangle/concurrent. The ThriftServer class contains a member variable ioThreadPool_ of type IOThreadPoolExecutor. This class manages a pool of threads. Each thread in this pool runs an io event loop. When ThriftServer accepts a connection, then one thread from this pool is assigned to do further communication on the accepted connection. The code for handling new connection is in Cpp2Worker class. The number of threads in this thread pool can be controlled by calling ThriftServer.setNWorkerThreads(count).</li>
-<li><strong>Cpp2Worker</strong>: The code in this class handles a new connection which is accepted by ThriftServer. This code is run by a thread from IOThreadPoolExecutor. Single Cpp2Worker can manages multiple socket connections. Each connection is represented by an instance of Cpp2Conection. So the Cpp2Worker contains a collection of Cpp2Connection instances. The request received on a connection is handled by code defined in Cpp2Connection.</li>
-<li><strong>Cpp2Connection</strong>: A single Cpp2Connection handles a single socket connection. Any incoming request data on a socket is handled by Cpp2Connection::requestReceived function. This function calls Processor::process function for decoding the function ID and params and then calling the service function(for example add function in our first <a href="/thrift/client_server.html">example</a>)</li>
-<li><strong>Processor</strong>: Processor is mostly generated code by the thrift compiler. Some part of the processor code is also present in thrift/lib/cpp2/async/AsyncProcessor.h. The processor code decodes the function ID and function argument from the data received from the socket then determines which service function (for example add function in our first <a href="/thrift/client_server.html">example</a>) to be called and calls that function. Based on a switch in the trift compiler, then the service function can be called in a separate thread. Please note that code of Cpp2Worker, Cpp2Connection and Processor runs in a thread from IOThreadPoolExecutor. If <strong><em>process_in_event_base</em></strong> flag is passed to the thrift compiler, then the service function is called in the same thread otherwise it is called on a separate thread. The other thread is picked from a thread pool which is managed by the ThreadManager class.</li>
-<li><strong>ThreadManager</strong>: Thread manager manages pool of threads used for calling service function. The ThreadManager is a base class and there are various implementations of it. You can even set your own ThreadManager implementation in ThriftServer by calling setThreadManager function. The ThreadManager does not create thread itself, instead it uses ThreadFactory to create a new thread for the pool. ThriftServer::setNPoolThreads is meant to control the number of threads in the thread manager pool but does not seem to work.</li>
-<li><strong>ThreadFactory</strong>: The thread factory is used to create thread for IOThreadPoolExecutor as well as ThreadManager. There are quite a few thread factories inside the thrift server to create threads. You can also provide your own implementation of the thread factory to thrift server.</li>
-<li><strong>SaslThreadManager</strong>: The thrift provides <a href="http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer">Sasl</a> authentication mechanism. The authentication work is done in a separate thread and this thread is managed by SaslThreadManager. The Sasl authentication can be disabled by providing command line argument sasl_policy=disabled</li>
-<li><strong>NumaThreadManager</strong>: If you do not provide any thread manager to the thrift server, then NumaThreadManager is used. The logic inside this thread manager is little complex. It is <a href="http://en.wikipedia.org/wiki/Non-uniform_memory_access">Numa</a> aware thread management. It also allows to define priority of server tasks. Actually it is the NumaThreadManager which does not honor the thread count set by <strong>ThriftServer::setNPoolThreads()</strong></li>
+  <li><strong>Thrift Server</strong>: This is implemented in ThriftServer class. This is the class that you instantiate from your main function. The main purpose of this class is to do initialization of various data structures then start listening on a socket. Once a connection is accepted, then the connection is not handled by ThriftServer itself, rather it is handed over to a thread from IOThreadPoolExecutor. The further communication on the accepted connection is done in the thread from IOThreadPoolExecutor.</li>
+  <li><strong>IOThreadPoolExecutor</strong>: This is a class defined in folly/experimental/wangle/concurrent. The ThriftServer class contains a member variable ioThreadPool_ of type IOThreadPoolExecutor. This class manages a pool of threads. Each thread in this pool runs an io event loop. When ThriftServer accepts a connection, then one thread from this pool is assigned to do further communication on the accepted connection. The code for handling new connection is in Cpp2Worker class. The number of threads in this thread pool can be controlled by calling ThriftServer.setNWorkerThreads(count).</li>
+  <li><strong>Cpp2Worker</strong>: The code in this class handles a new connection which is accepted by ThriftServer. This code is run by a thread from IOThreadPoolExecutor. Single Cpp2Worker can manages multiple socket connections. Each connection is represented by an instance of Cpp2Conection. So the Cpp2Worker contains a collection of Cpp2Connection instances. The request received on a connection is handled by code defined in Cpp2Connection.</li>
+  <li><strong>Cpp2Connection</strong>: A single Cpp2Connection handles a single socket connection. Any incoming request data on a socket is handled by Cpp2Connection::requestReceived function. This function calls Processor::process function for decoding the function ID and params and then calling the service function(for example add function in our first <a href="/thrift/client_server.html">example</a>)</li>
+  <li><strong>Processor</strong>: Processor is mostly generated code by the thrift compiler. Some part of the processor code is also present in thrift/lib/cpp2/async/AsyncProcessor.h. The processor code decodes the function ID and function argument from the data received from the socket then determines which service function (for example add function in our first <a href="/thrift/client_server.html">example</a>) to be called and calls that function. Based on a switch in the trift compiler, then the service function can be called in a separate thread. Please note that code of Cpp2Worker, Cpp2Connection and Processor runs in a thread from IOThreadPoolExecutor. If <strong><em>process_in_event_base</em></strong> flag is passed to the thrift compiler, then the service function is called in the same thread otherwise it is called on a separate thread. The other thread is picked from a thread pool which is managed by the ThreadManager class.</li>
+  <li><strong>ThreadManager</strong>: Thread manager manages pool of threads used for calling service function. The ThreadManager is a base class and there are various implementations of it. You can even set your own ThreadManager implementation in ThriftServer by calling setThreadManager function. The ThreadManager does not create thread itself, instead it uses ThreadFactory to create a new thread for the pool. ThriftServer::setNPoolThreads is meant to control the number of threads in the thread manager pool but does not seem to work.</li>
+  <li><strong>ThreadFactory</strong>: The thread factory is used to create thread for IOThreadPoolExecutor as well as ThreadManager. There are quite a few thread factories inside the thrift server to create threads. You can also provide your own implementation of the thread factory to thrift server.</li>
+  <li><strong>SaslThreadManager</strong>: The thrift provides <a href="http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer">Sasl</a> authentication mechanism. The authentication work is done in a separate thread and this thread is managed by SaslThreadManager. The Sasl authentication can be disabled by providing command line argument sasl_policy=disabled</li>
+  <li><strong>NumaThreadManager</strong>: If you do not provide any thread manager to the thrift server, then NumaThreadManager is used. The logic inside this thread manager is little complex. It is <a href="http://en.wikipedia.org/wiki/Non-uniform_memory_access">Numa</a> aware thread management. It also allows to define priority of server tasks. Actually it is the NumaThreadManager which does not honor the thread count set by <strong>ThriftServer::setNPoolThreads()</strong></li>
 </ul>
 
-<p><br/>
+<p><br />
 Some of the above concepts can be expressed by this diagram:</p>
 
-<p><img src="/images/thrift/thrift1.png" alt="Thrift internal diagram" style="width: 450px;"/>
-<img src="/images/thrift/thrift2.png" alt="Thrift internal diagram" style="width: 450px;"/></p>
+<p><img src="/images/thrift/thrift1.png" alt="Thrift internal diagram" style="width: 450px;" />
+<img src="/images/thrift/thrift2.png" alt="Thrift internal diagram" style="width: 450px;" /></p>
 
-<p><br/></p>
-
-<h4>I want to control the number of threads in my server process</h4>
-
-<p><br/>
+<p><br /></p>
+<h4 id="i-want-to-control-the-number-of-threads-in-my-server-process">I want to control the number of threads in my server process</h4>
+<p><br />
 There are mainly three types of thread in ThriftServer. They are:</p>
 
-<p><img src="/images/thrift/thrift4.png" alt="Thrift internal diagram" style="width: 500px;"/></p>
+<p><img src="/images/thrift/thrift4.png" alt="Thrift internal diagram" style="width: 500px;" /></p>
 
 <p>The ThriftServer provides two functions to control the number of threads: setNWorkerThreads and setNPoolThreads. The setNWorkerThreads works fine but the NumaThreadManager does not honor the setNPoolThreads. There are various possibilities to fix this</p>
 
 <ol>
-<li>Fix NumaThreadManager. Afterall, thrift is open source. Do it if you have time.</li>
-<li>Provide your own implementation of ThreadManager. Probably you should not be doing this.</li>
-<li>Tell ThriftServer to use SimpleThreadManager. The SimpleThreadManager is defined inside the thrift code but it is not smart thread manager as NumaThreadManager</li>
-<li>Run the service function in the IOThreadPoolExecutor thread itself rather than in a separate thread. And you can control the number of threads in IOThreadPoolExecutor.</li>
+  <li>Fix NumaThreadManager. Afterall, thrift is open source. Do it if you have time.</li>
+  <li>Provide your own implementation of ThreadManager. Probably you should not be doing this.</li>
+  <li>Tell ThriftServer to use SimpleThreadManager. The SimpleThreadManager is defined inside the thrift code but it is not smart thread manager as NumaThreadManager</li>
+  <li>Run the service function in the IOThreadPoolExecutor thread itself rather than in a separate thread. And you can control the number of threads in IOThreadPoolExecutor.</li>
 </ol>
 
-<p><br/>
+<p><br />
 Let us see how #4 can be used
 From the <a href="thrift/client_server.html">first example</a>, compile the calculator.thrift as</p>
 
-<pre><code>python -m thrift_compiler.main --gen cpp2:process_in_event_base calculator.thrift
-</code></pre>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python -m thrift_compiler.main --gen cpp2:process_in_event_base calculator.thrift
+</code></pre></div></div>
 
 <p>Then change the server code to</p>
 
-<pre><code>#include &lt;iostream&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;iostream&gt;
 #include "gen-cpp2/Calculator.h"
 #include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
 
@@ -157,19 +147,17 @@ int main(int argc, char **argv) {
   s-&gt;serve();
   return 0;
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>Compile the server as done previously. And run the server. Now the server process has only two threads including the main thread. Now we do not have any thread manager thread. There is a main thread on which the thrift server listens and another IOThreadPoolExecutor thread which receives the request and calls the service function in the same thread. If you want, you can increase the number of threads in IOThreadPoolExecutor.
 Also Sasl is disabled in this code. You can enable it if you need it. If enabled, it will create a separate thread.</p>
 
-<p><br/></p>
-
-<h4>Simplifying the server to server communication example</h4>
-
+<p><br /></p>
+<h4 id="simplifying-the-server-to-server-communication-example">Simplifying the server to server communication example</h4>
 <p>In <a href="/thrift/client_server_server.html">server to server communication example</a>, we had to run code in a separate thread. Now because we are running the service function in the IOThreadPoolExecutor thread, we do not need to delegate the work in the other thread.
 Now remove the async_tm_add function from that code and add this function</p>
 
-<pre><code>void async_eb_add(
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void async_eb_add(
   std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
   int32_t num1,
   int32_t num2)
@@ -187,10 +175,9 @@ Now remove the async_tm_add function from that code and add this function</p>
       cb.ptr-&gt;result(t.value());
       });
 }
-</code></pre>
+</code></pre></div></div>
 
 
-      
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
@@ -211,6 +198,7 @@ Now remove the async_tm_add function from that code and add this function</p>
     </div>
     <hr>
     <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
+
 
       <br><br><br>
       <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>

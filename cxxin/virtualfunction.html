@@ -8,104 +8,103 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<style>
-.align_left {
-  text-align: left;
-}
-
-.align_right {
-  text-align: right;
-}
-
-.align_center {
-  text-align: center;
-}
-
-.contentPara
-{
-    text-align: justify;
-}
-
-.freeText
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-}
-
-.code
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: blue;
-}
-
-.assemblycode
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: darkblue;
-}
-
-.filename
-{
-    font-weight: bolder;
-}
-
-.boldText
-{
-    font-weight: bolder;
-    text-decoration: underline;
-}
-
-.boldText2
-{
-    font-weight: bolder;
-}
-
-.contentTitle
-{
-/*
-height:44px;
-margin-top:20px;
-background-image:url(/sites/default/misc/tab_back.png);
-background-repeat:no-repeat;
-*/
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.contentTitle h1
-{
-/* margin-left:21px; 
-padding-top:8px; */
-font-size:17px;
-font-weight:bold;
-color:#071027;
-}
-
-.contentText
-{
-font-size:14px;
-color:#030712;
-line-height:25px;
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.internalLinks
-{
-text-decoration:none;
-color:#223F8D;
-}
-
-.internalLinks:hover
-{
-color:#5478D6;
-}
-
-</style>
+    <style>
+  .align_left {
+    text-align: left;
+  }
+  
+  .align_right {
+    text-align: right;
+  }
+  
+  .align_center {
+    text-align: center;
+  }
+  
+  .contentPara
+  {
+      text-align: justify;
+  }
+  
+  .freeText
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+  }
+  
+  .code
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: blue;
+  }
+  
+  .assemblycode
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: darkblue;
+  }
+  
+  .filename
+  {
+      font-weight: bolder;
+  }
+  
+  .boldText
+  {
+      font-weight: bolder;
+      text-decoration: underline;
+  }
+  
+  .boldText2
+  {
+      font-weight: bolder;
+  }
+  
+  .contentTitle
+  {
+  /*
+  height:44px;
+  margin-top:20px;
+  background-image:url(/sites/default/misc/tab_back.png);
+  background-repeat:no-repeat;
+  */
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .contentTitle h1
+  {
+  /* margin-left:21px; 
+  padding-top:8px; */
+  font-size:17px;
+  font-weight:bold;
+  color:#071027;
+  }
+  
+  .contentText
+  {
+  font-size:14px;
+  color:#030712;
+  line-height:25px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .internalLinks
+  {
+  text-decoration:none;
+  color:#223F8D;
+  }
+  
+  .internalLinks:hover
+  {
+  color:#5478D6;
+  }
+  
+  </style>
 
   </head>
   <body>
@@ -130,8 +129,6 @@ color:#5478D6;
       </div>
     </div>
     <div class="container">
-      
-    
       <h1>Virtual Function</h1>
 <br>
 
@@ -196,8 +193,6 @@ fptr(mycs, 10);
 <br><p class="contentPara">Here, unlike the non-virtual function, the method binding happens at run time. The actual method that is invoked, is decided at runtime by looking into the vtable. In the case of non-virtual function, the compiler generates the code to invoke the method directly without looking into any function pointer table. The compiler has info of which method to call at compile time and generates the code for the invocation of that particular function.<br> The vtable defines the function pointer in the sequence defined in the C++ code. Now you can guess why the C++ code has to be recompiled if the library code changes the order of declaration of virtual functions.</p></div><!-- content text-->
 
 
-      
-    
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">

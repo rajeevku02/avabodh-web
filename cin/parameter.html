@@ -8,104 +8,103 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<style>
-.align_left {
-  text-align: left;
-}
-
-.align_right {
-  text-align: right;
-}
-
-.align_center {
-  text-align: center;
-}
-
-.contentPara
-{
-    text-align: justify;
-}
-
-.freeText
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-}
-
-.code
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: blue;
-}
-
-.assemblycode
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: darkblue;
-}
-
-.filename
-{
-    font-weight: bolder;
-}
-
-.boldText
-{
-    font-weight: bolder;
-    text-decoration: underline;
-}
-
-.boldText2
-{
-    font-weight: bolder;
-}
-
-.contentTitle
-{
-/*
-height:44px;
-margin-top:20px;
-background-image:url(/sites/default/misc/tab_back.png);
-background-repeat:no-repeat;
-*/
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.contentTitle h1
-{
-/* margin-left:21px; 
-padding-top:8px; */
-font-size:17px;
-font-weight:bold;
-color:#071027;
-}
-
-.contentText
-{
-font-size:14px;
-color:#030712;
-line-height:25px;
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.internalLinks
-{
-text-decoration:none;
-color:#223F8D;
-}
-
-.internalLinks:hover
-{
-color:#5478D6;
-}
-
-</style>
+    <style>
+  .align_left {
+    text-align: left;
+  }
+  
+  .align_right {
+    text-align: right;
+  }
+  
+  .align_center {
+    text-align: center;
+  }
+  
+  .contentPara
+  {
+      text-align: justify;
+  }
+  
+  .freeText
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+  }
+  
+  .code
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: blue;
+  }
+  
+  .assemblycode
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: darkblue;
+  }
+  
+  .filename
+  {
+      font-weight: bolder;
+  }
+  
+  .boldText
+  {
+      font-weight: bolder;
+      text-decoration: underline;
+  }
+  
+  .boldText2
+  {
+      font-weight: bolder;
+  }
+  
+  .contentTitle
+  {
+  /*
+  height:44px;
+  margin-top:20px;
+  background-image:url(/sites/default/misc/tab_back.png);
+  background-repeat:no-repeat;
+  */
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .contentTitle h1
+  {
+  /* margin-left:21px; 
+  padding-top:8px; */
+  font-size:17px;
+  font-weight:bold;
+  color:#071027;
+  }
+  
+  .contentText
+  {
+  font-size:14px;
+  color:#030712;
+  line-height:25px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .internalLinks
+  {
+  text-decoration:none;
+  color:#223F8D;
+  }
+  
+  .internalLinks:hover
+  {
+  color:#5478D6;
+  }
+  
+  </style>
 
   </head>
   <body>
@@ -130,8 +129,6 @@ color:#5478D6;
       </div>
     </div>
     <div class="container">
-      
-    
       <h1>Parameter Passing</h1><br>
 <div class="contentText"><p class="contentPara">The parameters are pushed on the stack and then function calls are made. So the parameters are just below the return address. If a function wants to read the parameters, then it can read from the stack just below the return address.<br /> Let's see this in an example</p>C code:
 <pre class="code">void fun(int x, int y)
@@ -225,8 +222,7 @@ main:
 <br />Points to understand:<br /><ul><li>The parameters are passed left to right. The last parameter in C code is pushed first and the first parameter is pushed in the last. So if you scan the stack from top, then the first parameter will be found first.</li><li>The generated code does not use the push instruction. Instead it decrements the stack pointer first then add parameters to the space created by decrementing the stack pointer. This has been possibly done for perf reasons (subl + movl could be faster than push + pop).</li><li>If the parameter is of type structure then the whole of the structure will be pushed on the stack.</li></ul></div>
 
 
-      
-    
+
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">

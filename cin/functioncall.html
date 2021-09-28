@@ -8,104 +8,103 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<style>
-.align_left {
-  text-align: left;
-}
-
-.align_right {
-  text-align: right;
-}
-
-.align_center {
-  text-align: center;
-}
-
-.contentPara
-{
-    text-align: justify;
-}
-
-.freeText
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-}
-
-.code
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: blue;
-}
-
-.assemblycode
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: darkblue;
-}
-
-.filename
-{
-    font-weight: bolder;
-}
-
-.boldText
-{
-    font-weight: bolder;
-    text-decoration: underline;
-}
-
-.boldText2
-{
-    font-weight: bolder;
-}
-
-.contentTitle
-{
-/*
-height:44px;
-margin-top:20px;
-background-image:url(/sites/default/misc/tab_back.png);
-background-repeat:no-repeat;
-*/
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.contentTitle h1
-{
-/* margin-left:21px; 
-padding-top:8px; */
-font-size:17px;
-font-weight:bold;
-color:#071027;
-}
-
-.contentText
-{
-font-size:14px;
-color:#030712;
-line-height:25px;
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.internalLinks
-{
-text-decoration:none;
-color:#223F8D;
-}
-
-.internalLinks:hover
-{
-color:#5478D6;
-}
-
-</style>
+    <style>
+  .align_left {
+    text-align: left;
+  }
+  
+  .align_right {
+    text-align: right;
+  }
+  
+  .align_center {
+    text-align: center;
+  }
+  
+  .contentPara
+  {
+      text-align: justify;
+  }
+  
+  .freeText
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+  }
+  
+  .code
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: blue;
+  }
+  
+  .assemblycode
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: darkblue;
+  }
+  
+  .filename
+  {
+      font-weight: bolder;
+  }
+  
+  .boldText
+  {
+      font-weight: bolder;
+      text-decoration: underline;
+  }
+  
+  .boldText2
+  {
+      font-weight: bolder;
+  }
+  
+  .contentTitle
+  {
+  /*
+  height:44px;
+  margin-top:20px;
+  background-image:url(/sites/default/misc/tab_back.png);
+  background-repeat:no-repeat;
+  */
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .contentTitle h1
+  {
+  /* margin-left:21px; 
+  padding-top:8px; */
+  font-size:17px;
+  font-weight:bold;
+  color:#071027;
+  }
+  
+  .contentText
+  {
+  font-size:14px;
+  color:#030712;
+  line-height:25px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .internalLinks
+  {
+  text-decoration:none;
+  color:#223F8D;
+  }
+  
+  .internalLinks:hover
+  {
+  color:#5478D6;
+  }
+  
+  </style>
 
   </head>
   <body>
@@ -130,8 +129,6 @@ color:#5478D6;
       </div>
     </div>
     <div class="container">
-      
-    
       <h1>Function Call</h1><br>
 <div class="contentText"><p class="contentPara">The C function call is translated into assembly language using "call" assembly instruction. When the call instruction is executed, it pushes the address of the next instruction on the stack and then passes the control to the first instruction of the function which is called. The C return statement (there is an implicit return statement at the end of C void function) is translated using "ret" assembly instruction. The ret does the reverse of call instruction. It pops the stack to get the address and jumps to the address. So this is very important to make sure the top of the stack contains the correct return address when executing the return instruction. This is the responsibility of the compiler to generate the bug free code so that it will not mess-up with the return address.<br /> Lets us see an example of how gcc generate code for function call</p>C code:
 <pre class="code">void fun()
@@ -198,8 +195,7 @@ main:
 </div>
 
 
-      
-    
+
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">

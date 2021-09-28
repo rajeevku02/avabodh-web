@@ -8,8 +8,7 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
+    <link rel="stylesheet" href="/highlight/xcode.css">
 <script src="/highlight/highlight.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
@@ -36,30 +35,27 @@
       </div>
     </div>
     <div class="container">
-      
-    
-      <h1>Server to server communication example</h1>
-
+      <h1 id="server-to-server-communication-example">Server to server communication example</h1>
 <p>In the <a href="/thrift/client_server.html">previous example</a> we have learnt how a client can communicate to a server. There are cases when one service may need to communicate to another service. Now we will learn how to make a server to call functions on another server.
-<br/>
+<br />
 Now we will extend the previous example. Let us introduce an intermediate server and call it server_mid. This server will implement the Calculator service but instead of calculating the value itself, it will call add function on another Calculator server and then upon receiving the response, it will simply reply to the client with whatever it received from the other server.
-<br/>
-<img src="/images/thrift/thrift3.png" alt="Thrift internal diagram" style="width: 600px;"/>
-<br/>
+<br />
+<img src="/images/thrift/thrift3.png" alt="Thrift internal diagram" style="width: 600px;" />
+<br />
 This server simply acts as a proxy. But in a real world problem, a server may be doing much more than simply proxying. Purpose of this example is only to demonstrate how a server can communicate to another server so the logic inside the proxy server is kept very minimal.</p>
 
-<p><br/>
+<p><br />
 Now we have three processes</p>
 
 <ul>
-<li>A calculator server. The code is same as in the previous example</li>
-<li>A calculator proxy. The code is given below. This server will listen on 8081 port</li>
-<li>A client. The code is the same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)</li>
+  <li>A calculator server. The code is same as in the previous example</li>
+  <li>A calculator proxy. The code is given below. This server will listen on 8081 port</li>
+  <li>A client. The code is the same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)</li>
 </ul>
 
 <p>The proxy server (server_mid.cpp)</p>
 
-<pre><code>#include &lt;iostream&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;iostream&gt;
 
 #include "gen-cpp2/Calculator.h" // From generated code
 #include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
@@ -149,24 +145,23 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>Compile the server_mid.cpp as</p>
 
-<pre><code>g++ -o server_mid server_mid.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
-</code></pre>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++ -o server_mid server_mid.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
+</code></pre></div></div>
 
-<p><br/>
+<p><br />
 From the previous example, change the port number in client.cpp to 8081 and compile the client.</p>
 
-<p><br/>
+<p><br />
 Now open 3 bash shells. From the first, run server from the 2nd, run server_mid then run client from the 3rd shell.</p>
 
-<p><br/>
-If you want more explanation of why te->runInEventBaseThread was done, then refer to <a href="/thrift/internals.html">Thrift internals</a>.</p>
+<p><br />
+If you want more explanation of why te-&gt;runInEventBaseThread was done, then refer to <a href="/thrift/internals.html">Thrift internals</a>.</p>
 
 
-      
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
@@ -187,6 +182,7 @@ If you want more explanation of why te->runInEventBaseThread was done, then refe
     </div>
     <hr>
     <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
+
 
       <br><br><br>
       <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>

@@ -8,8 +8,7 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
+    <link rel="stylesheet" href="/highlight/xcode.css">
 <script src="/highlight/highlight.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
@@ -36,48 +35,38 @@
       </div>
     </div>
     <div class="container">
-      
-    
-      <h1>Introduction</h1>
-
-<p><br/>
-Thrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for "scalable cross-language services development".</p>
+      <h1 id="introduction">Introduction</h1>
+<p><br />
+Thrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for “scalable cross-language services development”.</p>
 
 <p>Facebook <a href="https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/">re-open sourced</a> the thrift with various enhancements. It includes a new code generator and framework for c++ called <strong>cpp2</strong>. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling a little bit I <a href="https://github.com/facebook/fbthrift/issues/21">found</a> that the python version of the compiler can be used to generate cpp2 style code.
-<br/>
+<br />
 To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrift/blob/master/thrift/doc/Cpp2.md">this link</a>.</p>
 
-<p><br/></p>
-
-<h4>About this tutorial</h4>
-
+<p><br /></p>
+<h4 id="about-this-tutorial">About this tutorial</h4>
 <p>This tutorial will help you to understand and use the fbthrift cpp2 framework. This tutorial is an incomplete guide because:</p>
 
 <ul>
-<li>The fbthrift supports many different languages but this tutorial only covers c++ with cpp2 framework.</li>
-<li>It also does not cover all aspects of the cpp2 framework. For example there are various compiler options for cpp2 code generation.</li>
+  <li>The fbthrift supports many different languages but this tutorial only covers c++ with cpp2 framework.</li>
+  <li>It also does not cover all aspects of the cpp2 framework. For example there are various compiler options for cpp2 code generation.</li>
 </ul>
 
 <p>I came up with the content of this tutorial by mostly reading the thrift source code. At the time of writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.</p>
 
-<p><br/></p>
-
-<h4>Prerequisite</h4>
-
+<p><br /></p>
+<h4 id="prerequisite">Prerequisite</h4>
 <ul>
-<li>You should know C++ with some of the C++11 constructs e.g. lambda expression</li>
-<li>Event driven programming concepts. If you have never done any event driven programming before, then it is highly recommended that try out at least one libevent example</li>
-<li>At the time of writing this article, the cpp2 framework is only supported on Linux so you should have a Linux box to try out examples in this tutorial</li>
+  <li>You should know C++ with some of the C++11 constructs e.g. lambda expression</li>
+  <li>Event driven programming concepts. If you have never done any event driven programming before, then it is highly recommended that try out at least one libevent example</li>
+  <li>At the time of writing this article, the cpp2 framework is only supported on Linux so you should have a Linux box to try out examples in this tutorial</li>
 </ul>
 
-<p><br/></p>
-
-<h4>Installing thrift</h4>
-
+<p><br /></p>
+<h4 id="installing-thrift">Installing thrift</h4>
 <p>Get the code from <a href="https://github.com/facebook/fbthrift">Github</a> and follow the instructions in <a href="https://github.com/facebook/fbthrift/blob/master/README.md">README</a> file</p>
 
 
-      
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
@@ -96,6 +85,7 @@ To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrif
     </div>
     <hr>
     <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
+
 
       <br><br><br>
       <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>

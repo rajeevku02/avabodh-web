@@ -8,8 +8,7 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
+    <link rel="stylesheet" href="/highlight/xcode.css">
 <script src="/highlight/highlight.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
@@ -36,25 +35,18 @@
       </div>
     </div>
     <div class="container">
-      
-    
-      <h1>A simple client server example</h1>
-
-<p><br/></p>
-
-<h4>Thrift IDL</h4>
-
+      <h1 id="a-simple-client-server-example">A simple client server example</h1>
+<p><br /></p>
+<h4 id="thrift-idl">Thrift IDL</h4>
 <p>To create a service in thrift, you need to first define the service in an IDL file. The IDL file is then used to generate skeleton code/interface in different languages. Then you need to implement the skeleton code or the interface to implement the service you need to create. In this tutorial we will learn how to implement services in C++</p>
 
-<p><br/></p>
-
-<h4>Calculator service</h4>
-
-<p>Let us create a simple calculator service. The service will provide an add function. The function will take two numbers as argument and return the sum of these two numbers as result. The server will implement the add function and a client from different process will call the add function.<br/></p>
+<p><br /></p>
+<h4 id="calculator-service">Calculator service</h4>
+<p>Let us create a simple calculator service. The service will provide an add function. The function will take two numbers as argument and return the sum of these two numbers as result. The server will implement the add function and a client from different process will call the add function.<br /></p>
 
 <p>The IDL for the calculator service (calculator.thrift)</p>
 
-<pre><code>namespace cpp example // The generated c++ code will be put inside example namespace
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>namespace cpp example // The generated c++ code will be put inside example namespace
 
 // Defines a service with name Calculator
 service Calculator {
@@ -63,19 +55,19 @@ service Calculator {
   // a value of type i64
   i64 add(1:i32 num1, 2:i32 num2);
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>Compile this as</p>
 
-<pre><code>python -m thrift_compiler.main --gen cpp2 calculator.thrift
-</code></pre>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python -m thrift_compiler.main --gen cpp2 calculator.thrift
+</code></pre></div></div>
 
 <p>This will generate gen-cpp2 folder which contains all generated cpp files which we will use to build server and client.</p>
 
-<p><br/>
+<p><br />
 Server code (server.cpp)</p>
 
-<pre><code>#include &lt;iostream&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;iostream&gt;
 
 #include "gen-cpp2/Calculator.h" // This is included from generated code
 #include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
@@ -126,17 +118,17 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>Compile the server with command</p>
 
-<pre><code>g++ -o server server.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
-</code></pre>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++ -o server server.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
+</code></pre></div></div>
 
-<p><br/>
+<p><br />
 Client code (client.cpp)</p>
 
-<pre><code>#include "gen-cpp2/Calculator.h" // From generated code
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include "gen-cpp2/Calculator.h" // From generated code
 #include &lt;iostream&gt;
 
 using namespace std;
@@ -173,27 +165,24 @@ int main()
       });
   base.loop();
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>Compile the client with command</p>
 
-<pre><code>g++ -o client client.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
-</code></pre>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++ -o client client.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
+</code></pre></div></div>
 
-<p><br/>
+<p><br />
 Now to see the thrift example in action: Open two bash shell and from one run server and from another run client</p>
 
-<p><br/>
+<p><br />
 <strong>If you get compilation errors like thrift header not found or undefined references then check if you have <a href="https://github.com/facebook/fbthrift/blob/master/README.md">correctly installed</a> the thrift</strong></p>
 
-<p><br/></p>
-
-<h4>Function names in generated code</h4>
-
+<p><br /></p>
+<h4 id="function-names-in-generated-code">Function names in generated code</h4>
 <p>In the above example, we have implemented async_tm_add function on the server side and called future_add from the client side. Actually there are various names generated for the same service you define in the IDL file. At a very broad level, you can group these functions in two groups: sync and async. From both server and client side, you are given sync async versions of the function. You can implement and call(from client) both sync and async versions. Also there are many variations of a function in async group but they do exactly the same thing. Depending on your choice, you should pick one of them. In the above example, only async functions are used. If you want to use the sync version, please try yourself.</p>
 
 
-      
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
@@ -214,6 +203,7 @@ Now to see the thrift example in action: Open two bash shell and from one run se
     </div>
     <hr>
     <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
+
 
       <br><br><br>
       <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>

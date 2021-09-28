@@ -8,8 +8,7 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
+    <link rel="stylesheet" href="/highlight/xcode.css">
 <script src="/highlight/highlight.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
@@ -36,21 +35,16 @@
       </div>
     </div>
     <div class="container">
-      
-    
-      <h1>Thrift language</h1>
+      <h1 id="thrift-language">Thrift language</h1>
 
-<p><br/></p>
-
-<h4>Type</h4>
-
+<p><br /></p>
+<h4 id="type">Type</h4>
 <p>The thrift type system consists of predefined base types, containers, user defined struct, enum and exception</p>
 
-<p><br/></p>
+<p><br /></p>
+<h4 id="base-type-and-containers">Base type and containers</h4>
 
-<h4>Base type and containers</h4>
-
-<pre><code>/**
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/**
  * The available types in Thrift are:
  *
  *  bool        Boolean, one byte
@@ -65,13 +59,11 @@
  *  set&lt;t1&gt;     Set of unique elements of one type
  *
  */
-</code></pre>
+</code></pre></div></div>
 
-<p><br/></p>
-
-<h4>User defined types</h4>
-
-<pre><code>/**
+<p><br /></p>
+<h4 id="user-defined-types">User defined types</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/**
  * You can define enums, which are just 32 bit integers. Values are optional.
  * If no constant value is supplied, the value is either 0 for the
  * first element, or one greater than the preceding value for any subsequent element.
@@ -105,13 +97,11 @@ exception InvalidOperation {
   1: i32 what,
   2: string why
 }
-</code></pre>
+</code></pre></div></div>
 
-<p><br/></p>
-
-<h4>Defining service</h4>
-
-<pre><code>/**
+<p><br /></p>
+<h4 id="defining-service">Defining service</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/**
  * Services just need a name and can optionally inherit
  * from another service using the extends keyword.
  */
@@ -141,13 +131,11 @@ service Calculator extends shared.SharedService {
     */
    oneway void zip(),
 }
-</code></pre>
+</code></pre></div></div>
 
-<p><br/></p>
-
-<h4>Misc</h4>
-
-<pre><code>/* Thrift supports C style comments?
+<p><br /></p>
+<h4 id="misc">Misc</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/* Thrift supports C style comments?
  */
 
 // Thirft also supports simple C comments too.
@@ -184,10 +172,9 @@ typedef i32 MyInteger
  */
 const i32 INT32CONSTANT = 9853
 const map&lt;string,string&gt; MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
-</code></pre>
+</code></pre></div></div>
 
 
-      
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
@@ -208,6 +195,7 @@ const map&lt;string,string&gt; MAPCONSTANT = {'hello':'world', 'goodnight':'moon
     </div>
     <hr>
     <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
+
 
       <br><br><br>
       <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>

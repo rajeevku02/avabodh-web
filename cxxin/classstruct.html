@@ -8,104 +8,103 @@
     <meta name="author" content="Rajeev Kumar">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<style>
-.align_left {
-  text-align: left;
-}
-
-.align_right {
-  text-align: right;
-}
-
-.align_center {
-  text-align: center;
-}
-
-.contentPara
-{
-    text-align: justify;
-}
-
-.freeText
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-}
-
-.code
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: blue;
-}
-
-.assemblycode
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: darkblue;
-}
-
-.filename
-{
-    font-weight: bolder;
-}
-
-.boldText
-{
-    font-weight: bolder;
-    text-decoration: underline;
-}
-
-.boldText2
-{
-    font-weight: bolder;
-}
-
-.contentTitle
-{
-/*
-height:44px;
-margin-top:20px;
-background-image:url(/sites/default/misc/tab_back.png);
-background-repeat:no-repeat;
-*/
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.contentTitle h1
-{
-/* margin-left:21px; 
-padding-top:8px; */
-font-size:17px;
-font-weight:bold;
-color:#071027;
-}
-
-.contentText
-{
-font-size:14px;
-color:#030712;
-line-height:25px;
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.internalLinks
-{
-text-decoration:none;
-color:#223F8D;
-}
-
-.internalLinks:hover
-{
-color:#5478D6;
-}
-
-</style>
+    <style>
+  .align_left {
+    text-align: left;
+  }
+  
+  .align_right {
+    text-align: right;
+  }
+  
+  .align_center {
+    text-align: center;
+  }
+  
+  .contentPara
+  {
+      text-align: justify;
+  }
+  
+  .freeText
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+  }
+  
+  .code
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: blue;
+  }
+  
+  .assemblycode
+  {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      font-size:14px;
+      line-height:25px;
+      color: darkblue;
+  }
+  
+  .filename
+  {
+      font-weight: bolder;
+  }
+  
+  .boldText
+  {
+      font-weight: bolder;
+      text-decoration: underline;
+  }
+  
+  .boldText2
+  {
+      font-weight: bolder;
+  }
+  
+  .contentTitle
+  {
+  /*
+  height:44px;
+  margin-top:20px;
+  background-image:url(/sites/default/misc/tab_back.png);
+  background-repeat:no-repeat;
+  */
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .contentTitle h1
+  {
+  /* margin-left:21px; 
+  padding-top:8px; */
+  font-size:17px;
+  font-weight:bold;
+  color:#071027;
+  }
+  
+  .contentText
+  {
+  font-size:14px;
+  color:#030712;
+  line-height:25px;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+  
+  .internalLinks
+  {
+  text-decoration:none;
+  color:#223F8D;
+  }
+  
+  .internalLinks:hover
+  {
+  color:#5478D6;
+  }
+  
+  </style>
 
   </head>
   <body>
@@ -130,8 +129,6 @@ color:#5478D6;
       </div>
     </div>
     <div class="container">
-      
-    
       <h1>Class and Structure </h1>
 <br>
 <div class="contentTitle"><h1>C++ class translation</h1></div>
@@ -165,8 +162,6 @@ int x = myClass_getVal(&amp;mycs, 2);
 <ul type="disc"><li>The class has an equivalent C structure with all data members defined in the class. The structure can be obtained by removing all functions from the class and keeping the data member defined in the same order.</li><li>There is a C like function for each class function. The name of the function is generated as per name mangling described in the previous chapter. But in this example, the mangled name is not used for readability.</li><li>There is only one function definition of the C like function described above. The code of the function is not duplicated for each object.</li><li>The equivalent C function has an extra argument. This is a pointer to the object on which the method is called.</li><li>The static function does not have the extra argument. The static function does not require any object to be invoked.</li></ul><p class="contentPara">The example shows the usage of a public variable. Most of the time there is no difference in the code generation of public, protected or private members. The compiler may use different strategies for optimization based on the access modifiers. For example it may remove the private unused member.</p><p class="contentPara">&nbsp;</p></div>
 
 
-      
-    
     <hr>
     <div class="row">
       <div class="col-md-4 align_left">
