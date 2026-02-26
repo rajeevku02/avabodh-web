@@ -1,145 +1,11 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Program Structure</title>
-    <meta name="author" content="Rajeev Kumar">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<style>
-.align_left {
-  text-align: left;
-}
-
-.align_right {
-  text-align: right;
-}
-
-.align_center {
-  text-align: center;
-}
-
-.contentPara
-{
-    text-align: justify;
-}
-
-.freeText
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-}
-
-.code
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: blue;
-}
-
-.assemblycode
-{
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    font-size:14px;
-    line-height:25px;
-    color: darkblue;
-}
-
-.filename
-{
-    font-weight: bolder;
-}
-
-.boldText
-{
-    font-weight: bolder;
-    text-decoration: underline;
-}
-
-.boldText2
-{
-    font-weight: bolder;
-}
-
-.contentTitle
-{
-/*
-height:44px;
-margin-top:20px;
-background-image:url(/sites/default/misc/tab_back.png);
-background-repeat:no-repeat;
-*/
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.contentTitle h1
-{
-/* margin-left:21px; 
-padding-top:8px; */
-font-size:17px;
-font-weight:bold;
-color:#071027;
-}
-
-.contentText
-{
-font-size:14px;
-color:#030712;
-line-height:25px;
-font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
-.internalLinks
-{
-text-decoration:none;
-color:#223F8D;
-}
-
-.internalLinks:hover
-{
-color:#5478D6;
-}
-
-</style>
-
-  </head>
-  <body>
-    <div class="navbar navbar-default" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Avabodh</a>
-        </div> 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li  ><a href="/">Home</a></li>
-            <li  ><a href="/apps">Apps</a></li>
-            <li class="active" ><a href="/articles">Articles</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      
-    
-      <h1>Program Structure</h1><br>
-<div class="contentText"><p class="contentPara">Lets us take an example of a simple C program and see how it looks like when loaded into memory for execution.</p>Here is the simple C program:<br /><pre class="code">int globalVar;
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="author" content="Rajeev Kumar" data-next-head=""/><title data-next-head="">Program Structure | avabodh.com</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link rel="preload" href="/_next/static/chunks/a25c247ab5d3ddeb.css" as="style"/><link rel="stylesheet" href="/_next/static/chunks/a25c247ab5d3ddeb.css" data-n-g=""/><noscript data-n-css=""></noscript><script src="/_next/static/chunks/3c9ac7f6b5542fde.js" defer=""></script><script src="/_next/static/chunks/cc9693943f0cdf3d.js" defer=""></script><script src="/_next/static/chunks/bf6653fbb72adf1a.js" defer=""></script><script src="/_next/static/chunks/turbopack-b74f9d9dbe08115b.js" defer=""></script><script src="/_next/static/chunks/724d25d958a8dc59.js" defer=""></script><script src="/_next/static/chunks/turbopack-2466f6d424c980a8.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_ssgManifest.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_buildManifest.js" defer=""></script></head><body class="antialiased"><div id="__next"><div class="min-h-screen flex flex-col bg-slate-50"><nav class="bg-slate-100 border-b border-slate-200 sticky top-0 z-50"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="text-slate-900 font-semibold text-base tracking-tight hover:text-slate-600 transition-colors" href="/">avabodh</a><div class="flex items-center space-x-1"><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/">Home</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/about/">About</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-900 bg-slate-100" href="/articles/">Articles</a></div></div></div></nav><main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10"><article class="article-content"><div><h1>Program Structure</h1><br>
+<div class="contentText"><p class="contentPara">Let us take an example of a simple C program and see how it looks when loaded into memory for execution.</p>Here is a simple C program:<br /><pre class="code">int globalVar;
 void main()
 {
     globalVar = 10;
 }
 </pre>
-<p class="contentPara">There are two things to notice in this program. There is a global variable and a function. The function contains executable code and the global variable contains some data. If this program is translated into machine instruction and loaded into memory, this will get space in the random access memory for data and code part.<br /> This can be represented by a simple diagram like -</p><img alt="" src="/images/cin/programstructure.png" /><p class="contentPara">The data part consist of some bytes allocated for the global variable and code part contains bytes allocated for and loaded with the instruction which is generated from the code of the function. CPU executes the these instructions which manipulates the data.</p>Lets see the actual assembly code which is generated for the above program:
+<p class="contentPara">Usually the main function returns int but for simplicity it is declared as void here. There are two things to notice in this program. There is a global variable and a function. The function contains executable code and the global variable contains some data. If this program is translated into machine instruction and loaded into memory, this will get space in the random access memory for data and code parts.<br /> This can be represented by a simple diagram like -</p><img alt="" src="/images/cin/programstructure.png" /><p class="contentPara">The data part consists of some bytes allocated for the global variable and the code part contains bytes allocated for and loaded with the instruction which is generated from the code of the function. CPU executes these instructions which manipulate the data.</p>Lets see the actual assembly code which is generated for the above program:
 <pre class="assemblycode">    .comm   globalVar,4,4
     .text
 .globl main
@@ -151,8 +17,8 @@ main:
     popl    %ebp
     ret
 </pre>
-Comments on the generated asssembly code:
-<pre class="assemblycode"># declaration of global varibales.
+Comments on the generated assembly code:
+<pre class="assemblycode"># declaration of global variables.
 # .comm is a way to declare the uninitialized data.
 # The assembler will allocate the equivalent space in .bss segment.
     .comm	globalVar,4,4
@@ -169,50 +35,8 @@ main:
     popl    %ebp
     ret
 </pre>
-</div><div class="contentTitle"><h1>Section and Segment</h1></div><div class="contentText">Section is area in object file which contains information which is used while linking. It contains data that is used by linker to produce executable binary. For example- a section can contains program code, global variables, relocation table etc. And a segment is like a section but this is what actually loaded into memory for program execution. An executable binary may contains many segment which gets loaded by loader when you run the program. The sections and segments are named like .text, .data, .bss etc.<br /><br /> Here are few examples of section/segment which is mostly used while generating assembly code from C code:-<br /><span class="boldText2">.text</span> =&gt; This contains executable instructions.<br /><span class="boldText2">.bss</span> =&gt; uninitialized (all bits set to zero) data. These are typically static variables and global variables which are are uninitialized. The program can write data into this.<br /><span class="boldText2">.data</span> =&gt; This contains initialized global variables. for example, if you declare globally, int x = 20; then it will go to data segment. The program can later write data into this section.<br /><br /> .bss and .data almost similar. The only different is that of initial vales of memory allocated while the program is loaded. For .bss segment all bits will be set to zero and for the .data segment, it will be initialized according to what declared in the C code while declaring the variable.<br /><br /><span class="boldText2">.rowdata</span> - this contains read only data. This is loaded into memory when the program is loaded and the program can not change this. This, typically, contains string const.<br /><br /> There are few sections which are present in object and executable files but not loaded into memory when the program is executed. For example <span class="boldText2">.debug</span> segment which contains informations which are needed by debugger only. Few sections exist only in object module and later merged into other sections. for example <span class="boldText2">.common</span><br /></div>
-
-
-      
-    <hr>
-    <div class="row">
-      <div class="col-md-4 align_left">
-       
-       <a href="/cin/introduction.html">&#x2039 Introduction</a>
-       
-      </div>
-      <div class="col-md-4 align_center">
-       
-       <a href="/cin/cin.html">up</a>
-       
-      </div>
-      <div class="col-md-4 align_right">
-       
-       <a href="/cin/memorymanagement.html">Stack and Local Variables &#x203a</a>
-       
-      </div>
-    </div>
-    <hr>
-
-      <br><br><br>
-      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
-    </div>
-    <script src="/jquery-1.10.2.min.js"></script>
-    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    
-    <!-- Start of StatCounter Code for Default Guide -->
-    <script type="text/javascript">
-    var sc_project=6460274; 
-    var sc_invisible=1; 
-    var sc_security="a8560755"; 
-    </script>
-    <script type="text/javascript"
-    src="http://www.statcounter.com/counter/counter.js"></script>
-    <noscript><div class="statcounter"><a title="free hit
-    counter" href="http://statcounter.com/free-hit-counter/"
-    target="_blank"><img class="statcounter"
-    src="http://c.statcounter.com/6460274/0/a8560755/1/"
-    alt="free hit counter"></a></div></noscript>
-    <!-- End of StatCounter Code for Default Guide -->
-
-  </body>
-</html>
+</div><div class="contentTitle"><h1>Section and Segment</h1></div><div class="contentText">Section is area in object file which contains information which is used while linking. It contains data that is used by linker to produce executable binary. For example- a section can contain program code, global variables, relocation table etc. And a segment is like a section but this is what is actually loaded into memory for program execution. An executable binary may contain many segments which get loaded by loader when you run the program. The sections and segments are named like .text, .data, .bss etc.<br /><br /> Here are few examples of section/segment which is mostly used while generating assembly code from C code:-<br /><span class="boldText2">.text</span> =&gt; This contains executable instructions.<br /><span class="boldText2">.bss</span> =&gt; uninitialized (all bits set to zero) data. These are typically static variables and global variables which are uninitialized. The program can write data into this.<br /><span class="boldText2">.data</span> =&gt; This contains initialized global variables. for example, if you declare globally, int x = 20; then it will go to the data segment. The program can later write data into this section.<br /><br /> .bss and .data almost similar. The only difference is that of initial values of memory allocated while the program is loaded. For .bss segment all bits will be set to zero and for the .data segment, it will be initialized according to what declared in the C code while declaring the variable.<br /><br /><span class="boldText2">.rowdata</span> - this contains read only data. This is loaded into memory when the program is loaded and the program can not change this. This, typically, contains string const.<br /><br /> There are few sections which are present in object and executable files but not loaded into memory when the program is executed. For example <span class="boldText2">.debug</span> segment which contains information which is needed by debugger only. Few sections exist only in the object module and later merged into other sections. for example <span class="boldText2">.common</span><br /></div></div></article><hr class="my-6 border-gray-200"/><div class="flex items-center justify-between text-sm"><div class="w-1/3 text-left"><a href="/cin/introduction.html" class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>‹</span><span>Introduction</span></a></div><div class="w-1/3 text-center"><a href="/cin/cin.html" class="text-blue-700 hover:text-blue-500 font-medium">up</a></div><div class="w-1/3 text-right"><a href="/cin/memorymanagement.html" class="inline-flex items-center justify-end gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>Stack and Local Variables</span><span>›</span></a></div></div><hr class="my-6 border-gray-200"/><div class="mt-6 space-y-3 text-sm text-gray-700"><p><strong>Do you collaborate using whiteboard? Please try<!-- --> </strong><a href="https://lekh.app" class="text-blue-700 hover:text-blue-500 underline" target="_blank" rel="noopener noreferrer">Lekh App - An Intelligent Collaborative Whiteboard App</a></p></div></main><footer class="bg-slate-100 border-t border-slate-200"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5"><p class="text-sm text-slate-500 text-center">© 2012 avabodh.com — All rights reserved.</p></div></footer></div><script>
+            var sc_project=6460274;
+            var sc_invisible=1;
+            var sc_security="a8560755";
+          </script><script async="" src="https://www.statcounter.com/counter/counter.js"></script></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"title":"Program Structure","content":"\u003ch1\u003eProgram Structure\u003c/h1\u003e\u003cbr\u003e\n\u003cdiv class=\"contentText\"\u003e\u003cp class=\"contentPara\"\u003eLet us take an example of a simple C program and see how it looks when loaded into memory for execution.\u003c/p\u003eHere is a simple C program:\u003cbr /\u003e\u003cpre class=\"code\"\u003eint globalVar;\nvoid main()\n{\n    globalVar = 10;\n}\n\u003c/pre\u003e\n\u003cp class=\"contentPara\"\u003eUsually the main function returns int but for simplicity it is declared as void here. There are two things to notice in this program. There is a global variable and a function. The function contains executable code and the global variable contains some data. If this program is translated into machine instruction and loaded into memory, this will get space in the random access memory for data and code parts.\u003cbr /\u003e This can be represented by a simple diagram like -\u003c/p\u003e\u003cimg alt=\"\" src=\"/images/cin/programstructure.png\" /\u003e\u003cp class=\"contentPara\"\u003eThe data part consists of some bytes allocated for the global variable and the code part contains bytes allocated for and loaded with the instruction which is generated from the code of the function. CPU executes these instructions which manipulate the data.\u003c/p\u003eLets see the actual assembly code which is generated for the above program:\n\u003cpre class=\"assemblycode\"\u003e    .comm   globalVar,4,4\n    .text\n.globl main\n    .type   main, @function\nmain:\n    pushl   %ebp\n    movl    %esp, %ebp\n    movl    $10, globalVar\n    popl    %ebp\n    ret\n\u003c/pre\u003e\nComments on the generated assembly code:\n\u003cpre class=\"assemblycode\"\u003e# declaration of global variables.\n# .comm is a way to declare the uninitialized data.\n# The assembler will allocate the equivalent space in .bss segment.\n    .comm\tglobalVar,4,4\n# .text segment starts now\n    .text\n# export the function name main so that it can be used outside of the file.\n.globl main\n    .type   main, @function\n# the code generated for the function main\nmain:\n    pushl   %ebp\n    movl    %esp, %ebp\n    movl    $10, globalVar\n    popl    %ebp\n    ret\n\u003c/pre\u003e\n\u003c/div\u003e\u003cdiv class=\"contentTitle\"\u003e\u003ch1\u003eSection and Segment\u003c/h1\u003e\u003c/div\u003e\u003cdiv class=\"contentText\"\u003eSection is area in object file which contains information which is used while linking. It contains data that is used by linker to produce executable binary. For example- a section can contain program code, global variables, relocation table etc. And a segment is like a section but this is what is actually loaded into memory for program execution. An executable binary may contain many segments which get loaded by loader when you run the program. The sections and segments are named like .text, .data, .bss etc.\u003cbr /\u003e\u003cbr /\u003e Here are few examples of section/segment which is mostly used while generating assembly code from C code:-\u003cbr /\u003e\u003cspan class=\"boldText2\"\u003e.text\u003c/span\u003e =\u0026gt; This contains executable instructions.\u003cbr /\u003e\u003cspan class=\"boldText2\"\u003e.bss\u003c/span\u003e =\u0026gt; uninitialized (all bits set to zero) data. These are typically static variables and global variables which are uninitialized. The program can write data into this.\u003cbr /\u003e\u003cspan class=\"boldText2\"\u003e.data\u003c/span\u003e =\u0026gt; This contains initialized global variables. for example, if you declare globally, int x = 20; then it will go to the data segment. The program can later write data into this section.\u003cbr /\u003e\u003cbr /\u003e .bss and .data almost similar. The only difference is that of initial values of memory allocated while the program is loaded. For .bss segment all bits will be set to zero and for the .data segment, it will be initialized according to what declared in the C code while declaring the variable.\u003cbr /\u003e\u003cbr /\u003e\u003cspan class=\"boldText2\"\u003e.rowdata\u003c/span\u003e - this contains read only data. This is loaded into memory when the program is loaded and the program can not change this. This, typically, contains string const.\u003cbr /\u003e\u003cbr /\u003e There are few sections which are present in object and executable files but not loaded into memory when the program is executed. For example \u003cspan class=\"boldText2\"\u003e.debug\u003c/span\u003e segment which contains information which is needed by debugger only. Few sections exist only in the object module and later merged into other sections. for example \u003cspan class=\"boldText2\"\u003e.common\u003c/span\u003e\u003cbr /\u003e\u003c/div\u003e","prev":"Introduction","prevUrl":"/cin/introduction.html","next":"Stack and Local Variables","nextUrl":"/cin/memorymanagement.html","up":"up","upUrl":"/cin/cin.html"},"__N_SSG":true},"page":"/cin/[slug]","query":{"slug":"programstructure"},"buildId":"Uj0xLDHGjqNjg59NxkbrM","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>

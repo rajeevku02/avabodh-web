@@ -1,151 +1,62 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Embedding http server inside thrift server</title>
-    <meta name="author" content="Rajeev Kumar">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
-<script src="/highlight/highlight.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="author" content="Rajeev Kumar" data-next-head=""/><title data-next-head="">Embedding http server inside thrift server | avabodh.com</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link rel="preload" href="/_next/static/chunks/a25c247ab5d3ddeb.css" as="style"/><link rel="stylesheet" href="/_next/static/chunks/a25c247ab5d3ddeb.css" data-n-g=""/><noscript data-n-css=""></noscript><script src="/_next/static/chunks/3c9ac7f6b5542fde.js" defer=""></script><script src="/_next/static/chunks/cc9693943f0cdf3d.js" defer=""></script><script src="/_next/static/chunks/bf6653fbb72adf1a.js" defer=""></script><script src="/_next/static/chunks/turbopack-b74f9d9dbe08115b.js" defer=""></script><script src="/_next/static/chunks/c7e7faf7cf2808e8.js" defer=""></script><script src="/_next/static/chunks/turbopack-0bc91ef7bfd7ed60.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_ssgManifest.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_buildManifest.js" defer=""></script></head><body class="antialiased"><div id="__next"><div class="min-h-screen flex flex-col bg-slate-50"><nav class="bg-slate-100 border-b border-slate-200 sticky top-0 z-50"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="text-slate-900 font-semibold text-base tracking-tight hover:text-slate-600 transition-colors" href="/">avabodh</a><div class="flex items-center space-x-1"><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/">Home</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/about/">About</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-900 bg-slate-100" href="/articles/">Articles</a></div></div></div></nav><main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10"><article class="article-content"><div><h1>Embedding http server inside thrift server</h1>
+<p>The thrift server allows you to set a http handler for any incoming http request coming on the same port. You can embed http server inside a thrift server for viewing diagnostics/debugging data from the web interface. There may be many other use cases too.</p>
+<p>Here is the server code</p>
+<pre><code class="hljs language-arduino"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;iostream></span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"gen-cpp2/Calculator.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;thrift/lib/cpp2/server/ThriftServer.h></span></span>
 
-  </head>
-  <body>
-    <div class="navbar navbar-default" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Avabodh</a>
-        </div> 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li  ><a href="/">Home</a></li>
-            <li  ><a href="/apps">Apps</a></li>
-            <li class="active" ><a href="/articles">Articles</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      
-    
-      <h1>Embedding http server inside thrift server</h1>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> apache::thrift;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> example::cpp2;
 
-<p><br/>
-The thrift server allows you to set a http handler for any incoming http request coming on the same port. You can embed http server inside a thrift server for viewing diagnostics/debugging data from web interface. There may be many other use cases too.</p>
-
-<p><br/>
-Here is the server code</p>
-
-<pre><code>#include &lt;iostream&gt;
-#include "gen-cpp2/Calculator.h"
-#include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
-
-using namespace std;
-using namespace apache::thrift;
-using namespace example::cpp2;
-
-class CalculatorSvc : public CalculatorSvIf
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CalculatorSvc</span> : <span class="hljs-keyword">public</span> CalculatorSvIf
 {
- public:
-  virtual ~CalculatorSvc() {}
-  void async_tm_add(
-    std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
-    int32_t num1,
-    int32_t num2)
-  {
-    cout &lt;&lt; "Got async request " &lt;&lt; num1 &lt;&lt; " + " &lt;&lt; num2 &lt;&lt; endl;
-    callback-&gt;result(num1 + num2);
+ <span class="hljs-keyword">public</span>:
+  <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">CalculatorSvc</span>() {}
+  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">async_tm_add</span><span class="hljs-params">(
+    std::unique_ptr&#x3C;apache::thrift::HandlerCallback&#x3C;<span class="hljs-type">int64_t</span>>> callback,
+    <span class="hljs-type">int32_t</span> num1,
+    <span class="hljs-type">int32_t</span> num2)</span>
+  </span>{
+    cout &#x3C;&#x3C; <span class="hljs-string">"Got async request "</span> &#x3C;&#x3C; num1 &#x3C;&#x3C; <span class="hljs-string">" + "</span> &#x3C;&#x3C; num2 &#x3C;&#x3C; endl;
+    callback-><span class="hljs-built_in">result</span>(num1 + num2);
   }
 };
 
-// httpHandler is called whenever a http request is received by thrift server
-void httpHandler(
+<span class="hljs-comment">// httpHandler is called whenever a http request is received by thrift server</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">httpHandler</span><span class="hljs-params">(
   apache::thrift::async::TEventBase* ev,
-  std::shared_ptr&lt;apache::thrift::async::TAsyncTransport&gt; tr,
-  std::unique_ptr&lt;folly::IOBuf&gt; buf)
-{
-  /*
+  std::shared_ptr&#x3C;apache::thrift::async::TAsyncTransport> tr,
+  std::unique_ptr&#x3C;folly::IOBuf> buf)</span>
+</span>{
+  <span class="hljs-comment">/*
   buf: contains the request header raw data. To get the request detail
   you must use some http request header parser.
 
   The response has to be written in tr. This is basically a socket.
-  */
-  std::cout &lt;&lt; "Got http request" &lt;&lt; std::endl;
-  // Create http response. A better approach will be to use some http response builder
-  // But for this example, we are directly preparing raw response
-  std::string resp = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 11\r\n\r\nHello World";
-  tr-&gt;write(nullptr, resp.c_str(), resp.size());
+  */</span>
+  std::cout &#x3C;&#x3C; <span class="hljs-string">"Got http request"</span> &#x3C;&#x3C; std::endl;
+  <span class="hljs-comment">// Create http response. A better approach will be to use some http response builder</span>
+  <span class="hljs-comment">// But for this example, we are directly preparing raw response</span>
+  std::string resp = <span class="hljs-string">"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 11\r\n\r\nHello World"</span>;
+  tr-><span class="hljs-built_in">write</span>(<span class="hljs-literal">nullptr</span>, resp.<span class="hljs-built_in">c_str</span>(), resp.<span class="hljs-built_in">size</span>());
 }
 
-int main(int argc, char **argv) {
-  ThriftServer* s = new ThriftServer();
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span> </span>{
+  ThriftServer* s = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ThriftServer</span>();
   getHandlerFunc hf = httpHandler;
-  // Set http handler
-  s-&gt;setGetHandler(hf);
-  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
-  s-&gt;setInterface(ptr);
-  s-&gt;setPort(8080);
-  s-&gt;serve();
-  return 0;
+  <span class="hljs-comment">// Set http handler</span>
+  s-><span class="hljs-built_in">setGetHandler</span>(hf);
+  <span class="hljs-function">std::shared_ptr&#x3C;CalculatorSvc> <span class="hljs-title">ptr</span><span class="hljs-params">(<span class="hljs-keyword">new</span>  CalculatorSvc())</span></span>;
+  s-><span class="hljs-built_in">setInterface</span>(ptr);
+  s-><span class="hljs-built_in">setPort</span>(<span class="hljs-number">8080</span>);
+  s-><span class="hljs-built_in">serve</span>();
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }
 </code></pre>
-
-<p>Compile this server in the same way as you compiled the first server example. Run this server and the open a web browser and navigate to http://hostname:8080 (The hostname is name of the host on which you are running the server. You can also use IP address instead of host name). You will see the browser has received "Hello World" string. Same server can also serve the calculator client. It is amazing... right?</p>
-
-<p><br/>
-<strong>How does it work?</strong> Actually the thrift checks initial few bytes of any request it receives and check if it matches to one of http methods (e.g. GET, POST, HEAD etc). If it matches then it declares the request as http request and calls http handler.
-
-      
-    <hr>
-    <div class="row">
-      <div class="col-md-4 align_left">
-       
-       <a href="/thrift/client_server_server.html">&#x2039 Server to server communication example</a>
-       
-      </div>
-      <div class="col-md-4 align_center">
-       
-       <a href="/thrift/thrift.html">up</a>
-       
-      </div>
-      <div class="col-md-4 align_right">
-       
-       <a href="/thrift/lang.html">Thrift language &#x203a</a>
-       
-      </div>
-    </div>
-    <hr>
-
-      <br><br><br>
-      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
-    </div>
-    <script src="/jquery-1.10.2.min.js"></script>
-    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    
-    <!-- Start of StatCounter Code for Default Guide -->
-    <script type="text/javascript">
-    var sc_project=6460274; 
-    var sc_invisible=1; 
-    var sc_security="a8560755"; 
-    </script>
-    <script type="text/javascript"
-    src="http://www.statcounter.com/counter/counter.js"></script>
-    <noscript><div class="statcounter"><a title="free hit
-    counter" href="http://statcounter.com/free-hit-counter/"
-    target="_blank"><img class="statcounter"
-    src="http://c.statcounter.com/6460274/0/a8560755/1/"
-    alt="free hit counter"></a></div></noscript>
-    <!-- End of StatCounter Code for Default Guide -->
-
-  </body>
-</html>
+<p>Compile this server in the same way as you compiled the first server example. Run this server and then open a web browser and navigate to http://hostname:8080 (The hostname is the name of the host on which you are running the server. You can also use IP address instead of host name). You will see the browser has received a "Hello World" string. Same server can also serve the calculator client. It is amazing... right?</p>
+<p><strong>How does it work?</strong> Actually the thrift checks the initial few bytes of any request it receives and check if it matches to one of http methods (e.g. GET, POST, HEAD etc). If it matches then it declares the request as http request and calls http handler.</p></div></article><hr class="my-6 border-gray-200"/><div class="flex items-center justify-between text-sm"><div class="w-1/3 text-left"><a href="/thrift/client_server_server.html" class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>‹</span><span>Server to server communication example</span></a></div><div class="w-1/3 text-center"><a href="/thrift/thrift.html" class="text-blue-700 hover:text-blue-500 font-medium">up</a></div><div class="w-1/3 text-right"><a href="/thrift/lang.html" class="inline-flex items-center justify-end gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>Thrift language</span><span>›</span></a></div></div><hr class="my-6 border-gray-200"/><div class="mt-6 space-y-3 text-sm text-gray-700"><p><strong>Do you collaborate using whiteboard? Please try<!-- --> </strong><a href="https://lekh.app" class="text-blue-700 hover:text-blue-500 underline" target="_blank" rel="noopener noreferrer">Lekh App - An Intelligent Collaborative Whiteboard App</a></p></div></main><footer class="bg-slate-100 border-t border-slate-200"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5"><p class="text-sm text-slate-500 text-center">© 2012 avabodh.com — All rights reserved.</p></div></footer></div><script>
+            var sc_project=6460274;
+            var sc_invisible=1;
+            var sc_security="a8560755";
+          </script><script async="" src="https://www.statcounter.com/counter/counter.js"></script></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"title":"Embedding http server inside thrift server","content":"\u003ch1\u003eEmbedding http server inside thrift server\u003c/h1\u003e\n\u003cp\u003eThe thrift server allows you to set a http handler for any incoming http request coming on the same port. You can embed http server inside a thrift server for viewing diagnostics/debugging data from the web interface. There may be many other use cases too.\u003c/p\u003e\n\u003cp\u003eHere is the server code\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-arduino\"\u003e\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;iostream\u003e\u003c/span\u003e\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\"gen-cpp2/Calculator.h\"\u003c/span\u003e\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;thrift/lib/cpp2/server/ThriftServer.h\u003e\u003c/span\u003e\u003c/span\u003e\n\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e std;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e apache::thrift;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e example::cpp2;\n\n\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCalculatorSvc\u003c/span\u003e : \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e CalculatorSvIf\n{\n \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e:\n  \u003cspan class=\"hljs-keyword\"\u003evirtual\u003c/span\u003e ~\u003cspan class=\"hljs-built_in\"\u003eCalculatorSvc\u003c/span\u003e() {}\n  \u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003easync_tm_add\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\n    std::unique_ptr\u0026#x3C;apache::thrift::HandlerCallback\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u003e callback,\n    \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num1,\n    \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num2)\u003c/span\u003e\n  \u003c/span\u003e{\n    cout \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\"Got async request \"\u003c/span\u003e \u0026#x3C;\u0026#x3C; num1 \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\" + \"\u003c/span\u003e \u0026#x3C;\u0026#x3C; num2 \u0026#x3C;\u0026#x3C; endl;\n    callback-\u003e\u003cspan class=\"hljs-built_in\"\u003eresult\u003c/span\u003e(num1 + num2);\n  }\n};\n\n\u003cspan class=\"hljs-comment\"\u003e// httpHandler is called whenever a http request is received by thrift server\u003c/span\u003e\n\u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003ehttpHandler\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\n  apache::thrift::async::TEventBase* ev,\n  std::shared_ptr\u0026#x3C;apache::thrift::async::TAsyncTransport\u003e tr,\n  std::unique_ptr\u0026#x3C;folly::IOBuf\u003e buf)\u003c/span\u003e\n\u003c/span\u003e{\n  \u003cspan class=\"hljs-comment\"\u003e/*\n  buf: contains the request header raw data. To get the request detail\n  you must use some http request header parser.\n\n  The response has to be written in tr. This is basically a socket.\n  */\u003c/span\u003e\n  std::cout \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\"Got http request\"\u003c/span\u003e \u0026#x3C;\u0026#x3C; std::endl;\n  \u003cspan class=\"hljs-comment\"\u003e// Create http response. A better approach will be to use some http response builder\u003c/span\u003e\n  \u003cspan class=\"hljs-comment\"\u003e// But for this example, we are directly preparing raw response\u003c/span\u003e\n  std::string resp = \u003cspan class=\"hljs-string\"\u003e\"HTTP/1.1 200 OK\\r\\nContent-Type: text/html\\r\\nContent-Length: 11\\r\\n\\r\\nHello World\"\u003c/span\u003e;\n  tr-\u003e\u003cspan class=\"hljs-built_in\"\u003ewrite\u003c/span\u003e(\u003cspan class=\"hljs-literal\"\u003enullptr\u003c/span\u003e, resp.\u003cspan class=\"hljs-built_in\"\u003ec_str\u003c/span\u003e(), resp.\u003cspan class=\"hljs-built_in\"\u003esize\u003c/span\u003e());\n}\n\n\u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003emain\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e argc, \u003cspan class=\"hljs-type\"\u003echar\u003c/span\u003e **argv)\u003c/span\u003e \u003c/span\u003e{\n  ThriftServer* s = \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-built_in\"\u003eThriftServer\u003c/span\u003e();\n  getHandlerFunc hf = httpHandler;\n  \u003cspan class=\"hljs-comment\"\u003e// Set http handler\u003c/span\u003e\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetGetHandler\u003c/span\u003e(hf);\n  \u003cspan class=\"hljs-function\"\u003estd::shared_ptr\u0026#x3C;CalculatorSvc\u003e \u003cspan class=\"hljs-title\"\u003eptr\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e  CalculatorSvc())\u003c/span\u003e\u003c/span\u003e;\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetInterface\u003c/span\u003e(ptr);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetPort\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e8080\u003c/span\u003e);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003eserve\u003c/span\u003e();\n  \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eCompile this server in the same way as you compiled the first server example. Run this server and then open a web browser and navigate to http://hostname:8080 (The hostname is the name of the host on which you are running the server. You can also use IP address instead of host name). You will see the browser has received a \"Hello World\" string. Same server can also serve the calculator client. It is amazing... right?\u003c/p\u003e\n\u003cp\u003e\u003cstrong\u003eHow does it work?\u003c/strong\u003e Actually the thrift checks the initial few bytes of any request it receives and check if it matches to one of http methods (e.g. GET, POST, HEAD etc). If it matches then it declares the request as http request and calls http handler.\u003c/p\u003e","prev":"Server to server communication example","prevUrl":"/thrift/client_server_server.html","next":"Thrift language","nextUrl":"/thrift/lang.html","up":"up","upUrl":"/thrift/thrift.html"},"__N_SSG":true},"page":"/thrift/[slug]","query":{"slug":"http"},"buildId":"Uj0xLDHGjqNjg59NxkbrM","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>

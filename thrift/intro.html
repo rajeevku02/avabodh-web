@@ -1,121 +1,23 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Introduction</title>
-    <meta name="author" content="Rajeev Kumar">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
-<script src="/highlight/highlight.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-
-  </head>
-  <body>
-    <div class="navbar navbar-default" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Avabodh</a>
-        </div> 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li  ><a href="/">Home</a></li>
-            <li  ><a href="/apps">Apps</a></li>
-            <li class="active" ><a href="/articles">Articles</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      
-    
-      <h1>Introduction</h1>
-
-<p><br/>
-Thrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for "scalable cross-language services development".</p>
-
-<p>Facebook <a href="https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/">re-open sourced</a> the thrift with various enhancements. It includes a new code generator and framework for c++ called <strong>cpp2</strong>. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling little bit I <a href="https://github.com/facebook/fbthrift/issues/21">found</a> that python version of the compiler can be used to generate cpp2 style code.
-<br/>
-To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrift/blob/master/thrift/doc/Cpp2.md">this link</a>.</p>
-
-<p><br/></p>
-
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="author" content="Rajeev Kumar" data-next-head=""/><title data-next-head="">Introduction | avabodh.com</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link rel="preload" href="/_next/static/chunks/a25c247ab5d3ddeb.css" as="style"/><link rel="stylesheet" href="/_next/static/chunks/a25c247ab5d3ddeb.css" data-n-g=""/><noscript data-n-css=""></noscript><script src="/_next/static/chunks/3c9ac7f6b5542fde.js" defer=""></script><script src="/_next/static/chunks/cc9693943f0cdf3d.js" defer=""></script><script src="/_next/static/chunks/bf6653fbb72adf1a.js" defer=""></script><script src="/_next/static/chunks/turbopack-b74f9d9dbe08115b.js" defer=""></script><script src="/_next/static/chunks/c7e7faf7cf2808e8.js" defer=""></script><script src="/_next/static/chunks/turbopack-0bc91ef7bfd7ed60.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_ssgManifest.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_buildManifest.js" defer=""></script></head><body class="antialiased"><div id="__next"><div class="min-h-screen flex flex-col bg-slate-50"><nav class="bg-slate-100 border-b border-slate-200 sticky top-0 z-50"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="text-slate-900 font-semibold text-base tracking-tight hover:text-slate-600 transition-colors" href="/">avabodh</a><div class="flex items-center space-x-1"><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/">Home</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/about/">About</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-900 bg-slate-100" href="/articles/">Articles</a></div></div></div></nav><main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10"><article class="article-content"><div><h1>Introduction</h1>
+<p>Thrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for "scalable cross-language services development".</p>
+<p>Facebook <a href="https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/">re-open sourced</a> the thrift with various enhancements. It includes a new code generator and framework for c++ called <strong>cpp2</strong>. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling a little bit I <a href="https://github.com/facebook/fbthrift/issues/21">found</a> that the python version of the compiler can be used to generate cpp2 style code.</p>
+<p>To know more about the cpp2, follow <a href="https://github.com/facebook/fbthrift/blob/master/thrift/doc/Cpp2.md">this link</a>.</p>
 <h4>About this tutorial</h4>
-
 <p>This tutorial will help you to understand and use the fbthrift cpp2 framework. This tutorial is an incomplete guide because:</p>
-
 <ul>
 <li>The fbthrift supports many different languages but this tutorial only covers c++ with cpp2 framework.</li>
 <li>It also does not cover all aspects of the cpp2 framework. For example there are various compiler options for cpp2 code generation.</li>
 </ul>
-
-<p>I came up with the content of this tutoral by mostly reading the thrift source code. At the time writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.</p>
-
-<p><br/></p>
-
+<p>I came up with the content of this tutorial by mostly reading the thrift source code. At the time of writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.</p>
 <h4>Prerequisite</h4>
-
 <ul>
 <li>You should know C++ with some of the C++11 constructs e.g. lambda expression</li>
 <li>Event driven programming concepts. If you have never done any event driven programming before, then it is highly recommended that try out at least one libevent example</li>
 <li>At the time of writing this article, the cpp2 framework is only supported on Linux so you should have a Linux box to try out examples in this tutorial</li>
 </ul>
-
-<p><br/></p>
-
 <h4>Installing thrift</h4>
-
-<p>Get the code from <a href="https://github.com/facebook/fbthrift">Github</a> and follow the instructions in <a href="https://github.com/facebook/fbthrift/blob/master/README.md">README</a> file</p>
-
-
-      
-    <hr>
-    <div class="row">
-      <div class="col-md-4 align_left">
-       
-      </div>
-      <div class="col-md-4 align_center">
-       
-       <a href="/thrift/thrift.html">up</a>
-       
-      </div>
-      <div class="col-md-4 align_right">
-       
-       <a href="/thrift/client_server.html">A simple client server example &#x203a</a>
-       
-      </div>
-    </div>
-    <hr>
-
-      <br><br><br>
-      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
-    </div>
-    <script src="/jquery-1.10.2.min.js"></script>
-    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    
-    <!-- Start of StatCounter Code for Default Guide -->
-    <script type="text/javascript">
-    var sc_project=6460274; 
-    var sc_invisible=1; 
-    var sc_security="a8560755"; 
-    </script>
-    <script type="text/javascript"
-    src="http://www.statcounter.com/counter/counter.js"></script>
-    <noscript><div class="statcounter"><a title="free hit
-    counter" href="http://statcounter.com/free-hit-counter/"
-    target="_blank"><img class="statcounter"
-    src="http://c.statcounter.com/6460274/0/a8560755/1/"
-    alt="free hit counter"></a></div></noscript>
-    <!-- End of StatCounter Code for Default Guide -->
-
-  </body>
-</html>
+<p>Get the code from <a href="https://github.com/facebook/fbthrift">Github</a> and follow the instructions in <a href="https://github.com/facebook/fbthrift/blob/master/README.md">README</a> file</p></div></article><hr class="my-6 border-gray-200"/><div class="flex items-center justify-between text-sm"><div class="w-1/3 text-left"></div><div class="w-1/3 text-center"><a href="/thrift/thrift.html" class="text-blue-700 hover:text-blue-500 font-medium">up</a></div><div class="w-1/3 text-right"><a href="/thrift/client_server.html" class="inline-flex items-center justify-end gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>A simple client server example</span><span>›</span></a></div></div><hr class="my-6 border-gray-200"/><div class="mt-6 space-y-3 text-sm text-gray-700"><p><strong>Do you collaborate using whiteboard? Please try<!-- --> </strong><a href="https://lekh.app" class="text-blue-700 hover:text-blue-500 underline" target="_blank" rel="noopener noreferrer">Lekh App - An Intelligent Collaborative Whiteboard App</a></p></div></main><footer class="bg-slate-100 border-t border-slate-200"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5"><p class="text-sm text-slate-500 text-center">© 2012 avabodh.com — All rights reserved.</p></div></footer></div><script>
+            var sc_project=6460274;
+            var sc_invisible=1;
+            var sc_security="a8560755";
+          </script><script async="" src="https://www.statcounter.com/counter/counter.js"></script></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"title":"Introduction","content":"\u003ch1\u003eIntroduction\u003c/h1\u003e\n\u003cp\u003eThrift is an interface definition language and binary communication protocol that is used to define and create services for numerous languages. It is used as a remote procedure call (RPC) framework and was developed at Facebook for \"scalable cross-language services development\".\u003c/p\u003e\n\u003cp\u003eFacebook \u003ca href=\"https://code.facebook.com/posts/1468950976659943/under-the-hood-building-and-open-sourcing-fbthrift/\"\u003ere-open sourced\u003c/a\u003e the thrift with various enhancements. It includes a new code generator and framework for c++ called \u003cstrong\u003ecpp2\u003c/strong\u003e. The cpp2 framework looks great but there is almost no documentation on how to use the cpp2. At the time of writing this article, I could not even get any documentation on how to use the thrift compiler to generate cpp2 style code. The thrift compiler(thrift1) does not even recognize -gen cpp2 compiler option. After googling a little bit I \u003ca href=\"https://github.com/facebook/fbthrift/issues/21\"\u003efound\u003c/a\u003e that the python version of the compiler can be used to generate cpp2 style code.\u003c/p\u003e\n\u003cp\u003eTo know more about the cpp2, follow \u003ca href=\"https://github.com/facebook/fbthrift/blob/master/thrift/doc/Cpp2.md\"\u003ethis link\u003c/a\u003e.\u003c/p\u003e\n\u003ch4\u003eAbout this tutorial\u003c/h4\u003e\n\u003cp\u003eThis tutorial will help you to understand and use the fbthrift cpp2 framework. This tutorial is an incomplete guide because:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eThe fbthrift supports many different languages but this tutorial only covers c++ with cpp2 framework.\u003c/li\u003e\n\u003cli\u003eIt also does not cover all aspects of the cpp2 framework. For example there are various compiler options for cpp2 code generation.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eI came up with the content of this tutorial by mostly reading the thrift source code. At the time of writing this tutorial the thrift version is 15.0. The content may go outdated in future if the thrift design changes.\u003c/p\u003e\n\u003ch4\u003ePrerequisite\u003c/h4\u003e\n\u003cul\u003e\n\u003cli\u003eYou should know C++ with some of the C++11 constructs e.g. lambda expression\u003c/li\u003e\n\u003cli\u003eEvent driven programming concepts. If you have never done any event driven programming before, then it is highly recommended that try out at least one libevent example\u003c/li\u003e\n\u003cli\u003eAt the time of writing this article, the cpp2 framework is only supported on Linux so you should have a Linux box to try out examples in this tutorial\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch4\u003eInstalling thrift\u003c/h4\u003e\n\u003cp\u003eGet the code from \u003ca href=\"https://github.com/facebook/fbthrift\"\u003eGithub\u003c/a\u003e and follow the instructions in \u003ca href=\"https://github.com/facebook/fbthrift/blob/master/README.md\"\u003eREADME\u003c/a\u003e file\u003c/p\u003e","prev":null,"prevUrl":null,"next":"A simple client server example","nextUrl":"/thrift/client_server.html","up":"up","upUrl":"/thrift/thrift.html"},"__N_SSG":true},"page":"/thrift/[slug]","query":{"slug":"intro"},"buildId":"Uj0xLDHGjqNjg59NxkbrM","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>

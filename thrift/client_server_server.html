@@ -1,212 +1,113 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Server to server communication example</title>
-    <meta name="author" content="Rajeev Kumar">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    
-<link rel="stylesheet" href="/highlight/xcode.css">
-<script src="/highlight/highlight.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-
-  </head>
-  <body>
-    <div class="navbar navbar-default" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Avabodh</a>
-        </div> 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li  ><a href="/">Home</a></li>
-            <li  ><a href="/apps">Apps</a></li>
-            <li class="active" ><a href="/articles">Articles</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      
-    
-      <h1>Server to server communication example</h1>
-
-<p>In the <a href="/thrift/client_server.html">previous example</a> we have leant how a client can communicate to a server. There are cases when one service may need to communicate to another service. Now we will learn how to make a server to call functions on another server.
-<br/>
-Now we will extend the previous example. Let us introduce an intermediate server and call it server_mid. This server will implement the Calculator service but instead of calculating the value itself, it will call add function on another Calculator server and then upon receiving the response, it will simply reply to the client with whatever it received from the other server.
-<br/>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="author" content="Rajeev Kumar" data-next-head=""/><title data-next-head="">Server to server communication example | avabodh.com</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link rel="preload" href="/_next/static/chunks/a25c247ab5d3ddeb.css" as="style"/><link rel="stylesheet" href="/_next/static/chunks/a25c247ab5d3ddeb.css" data-n-g=""/><noscript data-n-css=""></noscript><script src="/_next/static/chunks/3c9ac7f6b5542fde.js" defer=""></script><script src="/_next/static/chunks/cc9693943f0cdf3d.js" defer=""></script><script src="/_next/static/chunks/bf6653fbb72adf1a.js" defer=""></script><script src="/_next/static/chunks/turbopack-b74f9d9dbe08115b.js" defer=""></script><script src="/_next/static/chunks/c7e7faf7cf2808e8.js" defer=""></script><script src="/_next/static/chunks/turbopack-0bc91ef7bfd7ed60.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_ssgManifest.js" defer=""></script><script src="/_next/static/Uj0xLDHGjqNjg59NxkbrM/_buildManifest.js" defer=""></script></head><body class="antialiased"><div id="__next"><div class="min-h-screen flex flex-col bg-slate-50"><nav class="bg-slate-100 border-b border-slate-200 sticky top-0 z-50"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="text-slate-900 font-semibold text-base tracking-tight hover:text-slate-600 transition-colors" href="/">avabodh</a><div class="flex items-center space-x-1"><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/">Home</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/about/">About</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-900 bg-slate-100" href="/articles/">Articles</a></div></div></div></nav><main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10"><article class="article-content"><div><h1>Server to server communication example</h1>
+<p>In the <a href="/thrift/client_server.html">previous example</a> we have learnt how a client can communicate to a server. There are cases when one service may need to communicate to another service. Now we will learn how to make a server to call functions on another server.</p>
+<p>Now we will extend the previous example. Let us introduce an intermediate server and call it server_mid. This server will implement the Calculator service but instead of calculating the value itself, it will call add function on another Calculator server and then upon receiving the response, it will simply reply to the client with whatever it received from the other server.</p>
 <img src="/images/thrift/thrift3.png" alt="Thrift internal diagram" style="width: 600px;"/>
-<br/>
-This server simply acts as proxy. But in a real world problem, a server may be doing much more than simply proxying. Purpose of this example is only to demonstrate how a server can communicate to another server so the logic inside the proxy server is kept very minimal.</p>
-
-<p><br/>
-Now we have three processes</p>
-
+<p>This server simply acts as a proxy. But in a real world problem, a server may be doing much more than simply proxying. Purpose of this example is only to demonstrate how a server can communicate to another server so the logic inside the proxy server is kept very minimal.</p>
+<p>Now we have three processes</p>
 <ul>
 <li>A calculator server. The code is same as in the previous example</li>
 <li>A calculator proxy. The code is given below. This server will listen on 8081 port</li>
-<li>A client. The code is same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)</li>
+<li>A client. The code is the same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)</li>
 </ul>
-
 <p>The proxy server (server_mid.cpp)</p>
+<pre><code class="hljs language-arduino"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;iostream></span></span>
 
-<pre><code>#include &lt;iostream&gt;
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"gen-cpp2/Calculator.h"</span> <span class="hljs-comment">// From generated code</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;thrift/lib/cpp2/server/ThriftServer.h></span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;pthread.h></span></span>
 
-#include "gen-cpp2/Calculator.h" // From generated code
-#include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
-#include &lt;pthread.h&gt;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> apache::thrift;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> apache::thrift::async;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> example::cpp2;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> folly::wangle;
 
-using namespace std;
-using namespace apache::thrift;
-using namespace apache::thrift::async;
-using namespace example::cpp2;
-using namespace folly::wangle;
-
-// This wrapper is used to capture unique_ptr&lt;Callback&gt; inside
-// Lambda. There is no proper way to capture uniqie_ptr
-// in lambdas, this wrapper is simply a workaround
-struct CallbackWrapper {
-  std::unique_ptr&lt;HandlerCallback&lt;int64_t&gt;&gt; ptr;
-  CallbackWrapper(std::unique_ptr&lt;HandlerCallback&lt;int64_t&gt;&gt;&amp;p)
-    : ptr(std::move(p)) { }
-  CallbackWrapper(const CallbackWrapper&amp; o) {
-    // The static cast is not a good idea but done to workaround
-    CallbackWrapper&amp; cw = const_cast&lt;CallbackWrapper&amp;&gt;(o);
-    ptr = std::move(cw.ptr);
+<span class="hljs-comment">// This wrapper is used to capture unique_ptr&#x3C;Callback> inside</span>
+<span class="hljs-comment">// Lambda. There is no proper way to capture uniqie_ptr</span>
+<span class="hljs-comment">// in lambdas, this wrapper is simply a workaround</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">CallbackWrapper</span> {
+  std::unique_ptr&#x3C;HandlerCallback&#x3C;<span class="hljs-type">int64_t</span>>> ptr;
+  <span class="hljs-built_in">CallbackWrapper</span>(std::unique_ptr&#x3C;HandlerCallback&#x3C;<span class="hljs-type">int64_t</span>>>&#x26;p)
+    : <span class="hljs-built_in">ptr</span>(std::<span class="hljs-built_in">move</span>(p)) { }
+  <span class="hljs-built_in">CallbackWrapper</span>(<span class="hljs-type">const</span> CallbackWrapper&#x26; o) {
+    <span class="hljs-comment">// The static cast is not a good idea but done to workaround</span>
+    CallbackWrapper&#x26; cw = <span class="hljs-built_in">const_cast</span>&#x3C;CallbackWrapper&#x26;>(o);
+    ptr = std::<span class="hljs-built_in">move</span>(cw.ptr);
   }
 };
 
-// The calculator service. This service is a proxy service.
-// It does not do the calculation itself, instead it calls
-// add function on other server and sends the same response
-class CalculatorSvc : public CalculatorSvIf
+<span class="hljs-comment">// The calculator service. This service is a proxy service.</span>
+<span class="hljs-comment">// It does not do the calculation itself, instead it calls</span>
+<span class="hljs-comment">// add function on other server and sends the same response</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CalculatorSvc</span> : <span class="hljs-keyword">public</span> CalculatorSvIf
 {
-private:
-  // This function create a client object which will be used to
-  // to call add function on real calculator server
-  CalculatorAsyncClient* getClient(TEventBase* ev)
-  {
-    int port_ = 8080;
-    // Create async client socket
-    std::shared_ptr&lt;TAsyncSocket&gt; socket(
-      TAsyncSocket::newSocket(ev, "127.0.0.1", port_));
-    // Create HeaderClientChannel
-    auto client_channel = HeaderClientChannel::newChannel(socket);
-    // Create client object
-    return new CalculatorAsyncClient(std::move(client_channel));
+<span class="hljs-keyword">private</span>:
+  <span class="hljs-comment">// This function create a client object which will be used to</span>
+  <span class="hljs-comment">// to call add function on real calculator server</span>
+  <span class="hljs-function">CalculatorAsyncClient* <span class="hljs-title">getClient</span><span class="hljs-params">(TEventBase* ev)</span>
+  </span>{
+    <span class="hljs-type">int</span> port_ = <span class="hljs-number">8080</span>;
+    <span class="hljs-comment">// Create async client socket</span>
+    <span class="hljs-function">std::shared_ptr&#x3C;TAsyncSocket> <span class="hljs-title">socket</span><span class="hljs-params">(
+      TAsyncSocket::newSocket(ev, <span class="hljs-string">"127.0.0.1"</span>, port_))</span></span>;
+    <span class="hljs-comment">// Create HeaderClientChannel</span>
+    <span class="hljs-keyword">auto</span> client_channel = HeaderClientChannel::<span class="hljs-built_in">newChannel</span>(socket);
+    <span class="hljs-comment">// Create client object</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">CalculatorAsyncClient</span>(std::<span class="hljs-built_in">move</span>(client_channel));
   }
-public:
-  virtual ~CalculatorSvc() {}
-  void async_tm_add(
-    std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
-    int32_t num1,
-    int32_t num2)
-  {
-    cout &lt;&lt; "Got async request " &lt;&lt; num1 &lt;&lt; " + " &lt;&lt; num2 &lt;&lt; endl;
-    TEventBase* te = callback-&gt;getEventBase();
-    // Create Callback wrapper so that it can be captured in lambda
-    CallbackWrapper cb(callback);
-    // The async_tm_add function is called in a different thread than the
-    // thread which received the request from the network. Since we are going
-    // make an async request to another server, current thread must be in an
-    // event loop but the current thread is not in any event loop. So will
-    // make the network call in the thread which actually received request
-    // from client.
-    te-&gt;runInEventBaseThread([num1, num2, cb, this]() {
-      // Get the client handle of the real calculator server
-      CalculatorAsyncClient* client = getClient(cb.ptr-&gt;getEventBase());;
-      // Make the add function call on the real server
-      folly::wangle::Future&lt;int64_t&gt; f = client-&gt;future_add(num1, num2);
-      f.then(
-        [cb](Try&lt;int64_t&gt;&amp;&amp; t) {
-          // Now we have received the response from real calculator server
-          // respond to the client with the same result
-          cout &lt;&lt; "Received response from other server" &lt;&lt; endl;
-          cb.ptr-&gt;result(t.value());
+<span class="hljs-keyword">public</span>:
+  <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">CalculatorSvc</span>() {}
+  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">async_tm_add</span><span class="hljs-params">(
+    std::unique_ptr&#x3C;apache::thrift::HandlerCallback&#x3C;<span class="hljs-type">int64_t</span>>> callback,
+    <span class="hljs-type">int32_t</span> num1,
+    <span class="hljs-type">int32_t</span> num2)</span>
+  </span>{
+    cout &#x3C;&#x3C; <span class="hljs-string">"Got async request "</span> &#x3C;&#x3C; num1 &#x3C;&#x3C; <span class="hljs-string">" + "</span> &#x3C;&#x3C; num2 &#x3C;&#x3C; endl;
+    TEventBase* te = callback-><span class="hljs-built_in">getEventBase</span>();
+    <span class="hljs-comment">// Create Callback wrapper so that it can be captured in lambda</span>
+    <span class="hljs-function">CallbackWrapper <span class="hljs-title">cb</span><span class="hljs-params">(callback)</span></span>;
+    <span class="hljs-comment">// The async_tm_add function is called in a different thread than the</span>
+    <span class="hljs-comment">// thread which received the request from the network. Since we are going</span>
+    <span class="hljs-comment">// make an async request to another server, current thread must be in an</span>
+    <span class="hljs-comment">// event loop but the current thread is not in any event loop. So will</span>
+    <span class="hljs-comment">// make the network call in the thread which actually received request</span>
+    <span class="hljs-comment">// from client.</span>
+    te-><span class="hljs-built_in">runInEventBaseThread</span>([num1, num2, cb, <span class="hljs-keyword">this</span>]() {
+      <span class="hljs-comment">// Get the client handle of the real calculator server</span>
+      CalculatorAsyncClient* client = <span class="hljs-built_in">getClient</span>(cb.ptr-><span class="hljs-built_in">getEventBase</span>());;
+      <span class="hljs-comment">// Make the add function call on the real server</span>
+      folly::wangle::Future&#x3C;<span class="hljs-type">int64_t</span>> f = client-><span class="hljs-built_in">future_add</span>(num1, num2);
+      f.<span class="hljs-built_in">then</span>(
+        [cb](Try&#x3C;<span class="hljs-type">int64_t</span>>&#x26;&#x26; t) {
+          <span class="hljs-comment">// Now we have received the response from real calculator server</span>
+          <span class="hljs-comment">// respond to the client with the same result</span>
+          cout &#x3C;&#x3C; <span class="hljs-string">"Received response from other server"</span> &#x3C;&#x3C; endl;
+          cb.ptr-><span class="hljs-built_in">result</span>(t.<span class="hljs-built_in">value</span>());
         });
     });
   }
 };
 
-int main(int argc, char **argv) {
-  // The code in the main function same as in previous example except
-  // the port number. This proxy calculator will listen on 8081. So the
-  // client will have to connect to 8081 now.
-  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
-  ThriftServer* s = new ThriftServer();
-  s-&gt;setInterface(ptr);
-  s-&gt;setPort(8081);
-  s-&gt;serve();
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span> </span>{
+  <span class="hljs-comment">// The code in the main function same as in previous example except</span>
+  <span class="hljs-comment">// the port number. This proxy calculator will listen on 8081. So the</span>
+  <span class="hljs-comment">// client will have to connect to 8081 now.</span>
+  <span class="hljs-function">std::shared_ptr&#x3C;CalculatorSvc> <span class="hljs-title">ptr</span><span class="hljs-params">(<span class="hljs-keyword">new</span>  CalculatorSvc())</span></span>;
+  ThriftServer* s = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ThriftServer</span>();
+  s-><span class="hljs-built_in">setInterface</span>(ptr);
+  s-><span class="hljs-built_in">setPort</span>(<span class="hljs-number">8081</span>);
+  s-><span class="hljs-built_in">serve</span>();
 
-  return 0;
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }
 </code></pre>
-
 <p>Compile the server_mid.cpp as</p>
-
-<pre><code>g++ -o server_mid server_mid.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
+<pre><code class="hljs language-bash">g++ -o server_mid server_mid.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2
 </code></pre>
-
-<p><br/>
-From the previous example, change the port number in client.cpp to 8081 and compile the client.</p>
-
-<p><br/>
-Now open 3 bash shell. From the first, run server from the 2nd, run server_mid then run client from the 3rd shell.</p>
-
-<p><br/>
-If you want more explanation of why te->runInEventBaseThread was done, then refer to <a href="/thrift/internals.html">Thrift internals</a>.</p>
-
-
-      
-    <hr>
-    <div class="row">
-      <div class="col-md-4 align_left">
-       
-       <a href="/thrift/client_server.html">&#x2039 A simple client server example</a>
-       
-      </div>
-      <div class="col-md-4 align_center">
-       
-       <a href="/thrift/thrift.html">up</a>
-       
-      </div>
-      <div class="col-md-4 align_right">
-       
-       <a href="/thrift/http.html">Embedding http server inside thrift server &#x203a</a>
-       
-      </div>
-    </div>
-    <hr>
-
-      <br><br><br>
-      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
-    </div>
-    <script src="/jquery-1.10.2.min.js"></script>
-    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    
-    <!-- Start of StatCounter Code for Default Guide -->
-    <script type="text/javascript">
-    var sc_project=6460274; 
-    var sc_invisible=1; 
-    var sc_security="a8560755"; 
-    </script>
-    <script type="text/javascript"
-    src="http://www.statcounter.com/counter/counter.js"></script>
-    <noscript><div class="statcounter"><a title="free hit
-    counter" href="http://statcounter.com/free-hit-counter/"
-    target="_blank"><img class="statcounter"
-    src="http://c.statcounter.com/6460274/0/a8560755/1/"
-    alt="free hit counter"></a></div></noscript>
-    <!-- End of StatCounter Code for Default Guide -->
-
-  </body>
-</html>
+<p>From the previous example, change the port number in client.cpp to 8081 and compile the client.</p>
+<p>Now open 3 bash shells. From the first, run server from the 2nd, run server_mid then run client from the 3rd shell.</p>
+<p>If you want more explanation of why te->runInEventBaseThread was done, then refer to <a href="/thrift/internals.html">Thrift internals</a>.</p></div></article><hr class="my-6 border-gray-200"/><div class="flex items-center justify-between text-sm"><div class="w-1/3 text-left"><a href="/thrift/client_server.html" class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>‹</span><span>A simple client server example</span></a></div><div class="w-1/3 text-center"><a href="/thrift/thrift.html" class="text-blue-700 hover:text-blue-500 font-medium">up</a></div><div class="w-1/3 text-right"><a href="/thrift/http.html" class="inline-flex items-center justify-end gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>Embedding http server inside thrift server</span><span>›</span></a></div></div><hr class="my-6 border-gray-200"/><div class="mt-6 space-y-3 text-sm text-gray-700"><p><strong>Do you collaborate using whiteboard? Please try<!-- --> </strong><a href="https://lekh.app" class="text-blue-700 hover:text-blue-500 underline" target="_blank" rel="noopener noreferrer">Lekh App - An Intelligent Collaborative Whiteboard App</a></p></div></main><footer class="bg-slate-100 border-t border-slate-200"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5"><p class="text-sm text-slate-500 text-center">© 2012 avabodh.com — All rights reserved.</p></div></footer></div><script>
+            var sc_project=6460274;
+            var sc_invisible=1;
+            var sc_security="a8560755";
+          </script><script async="" src="https://www.statcounter.com/counter/counter.js"></script></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"title":"Server to server communication example","content":"\u003ch1\u003eServer to server communication example\u003c/h1\u003e\n\u003cp\u003eIn the \u003ca href=\"/thrift/client_server.html\"\u003eprevious example\u003c/a\u003e we have learnt how a client can communicate to a server. There are cases when one service may need to communicate to another service. Now we will learn how to make a server to call functions on another server.\u003c/p\u003e\n\u003cp\u003eNow we will extend the previous example. Let us introduce an intermediate server and call it server_mid. This server will implement the Calculator service but instead of calculating the value itself, it will call add function on another Calculator server and then upon receiving the response, it will simply reply to the client with whatever it received from the other server.\u003c/p\u003e\n\u003cimg src=\"/images/thrift/thrift3.png\" alt=\"Thrift internal diagram\" style=\"width: 600px;\"/\u003e\n\u003cp\u003eThis server simply acts as a proxy. But in a real world problem, a server may be doing much more than simply proxying. Purpose of this example is only to demonstrate how a server can communicate to another server so the logic inside the proxy server is kept very minimal.\u003c/p\u003e\n\u003cp\u003eNow we have three processes\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eA calculator server. The code is same as in the previous example\u003c/li\u003e\n\u003cli\u003eA calculator proxy. The code is given below. This server will listen on 8081 port\u003c/li\u003e\n\u003cli\u003eA client. The code is the same as in the previous example except the port number. Now it will connect to port 8081 (to calculator proxy)\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eThe proxy server (server_mid.cpp)\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-arduino\"\u003e\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;iostream\u003e\u003c/span\u003e\u003c/span\u003e\n\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\"gen-cpp2/Calculator.h\"\u003c/span\u003e \u003cspan class=\"hljs-comment\"\u003e// From generated code\u003c/span\u003e\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;thrift/lib/cpp2/server/ThriftServer.h\u003e\u003c/span\u003e\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;pthread.h\u003e\u003c/span\u003e\u003c/span\u003e\n\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e std;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e apache::thrift;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e apache::thrift::async;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e example::cpp2;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e folly::wangle;\n\n\u003cspan class=\"hljs-comment\"\u003e// This wrapper is used to capture unique_ptr\u0026#x3C;Callback\u003e inside\u003c/span\u003e\n\u003cspan class=\"hljs-comment\"\u003e// Lambda. There is no proper way to capture uniqie_ptr\u003c/span\u003e\n\u003cspan class=\"hljs-comment\"\u003e// in lambdas, this wrapper is simply a workaround\u003c/span\u003e\n\u003cspan class=\"hljs-keyword\"\u003estruct\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCallbackWrapper\u003c/span\u003e {\n  std::unique_ptr\u0026#x3C;HandlerCallback\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u003e ptr;\n  \u003cspan class=\"hljs-built_in\"\u003eCallbackWrapper\u003c/span\u003e(std::unique_ptr\u0026#x3C;HandlerCallback\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u003e\u0026#x26;p)\n    : \u003cspan class=\"hljs-built_in\"\u003eptr\u003c/span\u003e(std::\u003cspan class=\"hljs-built_in\"\u003emove\u003c/span\u003e(p)) { }\n  \u003cspan class=\"hljs-built_in\"\u003eCallbackWrapper\u003c/span\u003e(\u003cspan class=\"hljs-type\"\u003econst\u003c/span\u003e CallbackWrapper\u0026#x26; o) {\n    \u003cspan class=\"hljs-comment\"\u003e// The static cast is not a good idea but done to workaround\u003c/span\u003e\n    CallbackWrapper\u0026#x26; cw = \u003cspan class=\"hljs-built_in\"\u003econst_cast\u003c/span\u003e\u0026#x3C;CallbackWrapper\u0026#x26;\u003e(o);\n    ptr = std::\u003cspan class=\"hljs-built_in\"\u003emove\u003c/span\u003e(cw.ptr);\n  }\n};\n\n\u003cspan class=\"hljs-comment\"\u003e// The calculator service. This service is a proxy service.\u003c/span\u003e\n\u003cspan class=\"hljs-comment\"\u003e// It does not do the calculation itself, instead it calls\u003c/span\u003e\n\u003cspan class=\"hljs-comment\"\u003e// add function on other server and sends the same response\u003c/span\u003e\n\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCalculatorSvc\u003c/span\u003e : \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e CalculatorSvIf\n{\n\u003cspan class=\"hljs-keyword\"\u003eprivate\u003c/span\u003e:\n  \u003cspan class=\"hljs-comment\"\u003e// This function create a client object which will be used to\u003c/span\u003e\n  \u003cspan class=\"hljs-comment\"\u003e// to call add function on real calculator server\u003c/span\u003e\n  \u003cspan class=\"hljs-function\"\u003eCalculatorAsyncClient* \u003cspan class=\"hljs-title\"\u003egetClient\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(TEventBase* ev)\u003c/span\u003e\n  \u003c/span\u003e{\n    \u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e port_ = \u003cspan class=\"hljs-number\"\u003e8080\u003c/span\u003e;\n    \u003cspan class=\"hljs-comment\"\u003e// Create async client socket\u003c/span\u003e\n    \u003cspan class=\"hljs-function\"\u003estd::shared_ptr\u0026#x3C;TAsyncSocket\u003e \u003cspan class=\"hljs-title\"\u003esocket\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\n      TAsyncSocket::newSocket(ev, \u003cspan class=\"hljs-string\"\u003e\"127.0.0.1\"\u003c/span\u003e, port_))\u003c/span\u003e\u003c/span\u003e;\n    \u003cspan class=\"hljs-comment\"\u003e// Create HeaderClientChannel\u003c/span\u003e\n    \u003cspan class=\"hljs-keyword\"\u003eauto\u003c/span\u003e client_channel = HeaderClientChannel::\u003cspan class=\"hljs-built_in\"\u003enewChannel\u003c/span\u003e(socket);\n    \u003cspan class=\"hljs-comment\"\u003e// Create client object\u003c/span\u003e\n    \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-built_in\"\u003eCalculatorAsyncClient\u003c/span\u003e(std::\u003cspan class=\"hljs-built_in\"\u003emove\u003c/span\u003e(client_channel));\n  }\n\u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e:\n  \u003cspan class=\"hljs-keyword\"\u003evirtual\u003c/span\u003e ~\u003cspan class=\"hljs-built_in\"\u003eCalculatorSvc\u003c/span\u003e() {}\n  \u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003easync_tm_add\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\n    std::unique_ptr\u0026#x3C;apache::thrift::HandlerCallback\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u003e callback,\n    \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num1,\n    \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num2)\u003c/span\u003e\n  \u003c/span\u003e{\n    cout \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\"Got async request \"\u003c/span\u003e \u0026#x3C;\u0026#x3C; num1 \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\" + \"\u003c/span\u003e \u0026#x3C;\u0026#x3C; num2 \u0026#x3C;\u0026#x3C; endl;\n    TEventBase* te = callback-\u003e\u003cspan class=\"hljs-built_in\"\u003egetEventBase\u003c/span\u003e();\n    \u003cspan class=\"hljs-comment\"\u003e// Create Callback wrapper so that it can be captured in lambda\u003c/span\u003e\n    \u003cspan class=\"hljs-function\"\u003eCallbackWrapper \u003cspan class=\"hljs-title\"\u003ecb\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(callback)\u003c/span\u003e\u003c/span\u003e;\n    \u003cspan class=\"hljs-comment\"\u003e// The async_tm_add function is called in a different thread than the\u003c/span\u003e\n    \u003cspan class=\"hljs-comment\"\u003e// thread which received the request from the network. Since we are going\u003c/span\u003e\n    \u003cspan class=\"hljs-comment\"\u003e// make an async request to another server, current thread must be in an\u003c/span\u003e\n    \u003cspan class=\"hljs-comment\"\u003e// event loop but the current thread is not in any event loop. So will\u003c/span\u003e\n    \u003cspan class=\"hljs-comment\"\u003e// make the network call in the thread which actually received request\u003c/span\u003e\n    \u003cspan class=\"hljs-comment\"\u003e// from client.\u003c/span\u003e\n    te-\u003e\u003cspan class=\"hljs-built_in\"\u003erunInEventBaseThread\u003c/span\u003e([num1, num2, cb, \u003cspan class=\"hljs-keyword\"\u003ethis\u003c/span\u003e]() {\n      \u003cspan class=\"hljs-comment\"\u003e// Get the client handle of the real calculator server\u003c/span\u003e\n      CalculatorAsyncClient* client = \u003cspan class=\"hljs-built_in\"\u003egetClient\u003c/span\u003e(cb.ptr-\u003e\u003cspan class=\"hljs-built_in\"\u003egetEventBase\u003c/span\u003e());;\n      \u003cspan class=\"hljs-comment\"\u003e// Make the add function call on the real server\u003c/span\u003e\n      folly::wangle::Future\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e f = client-\u003e\u003cspan class=\"hljs-built_in\"\u003efuture_add\u003c/span\u003e(num1, num2);\n      f.\u003cspan class=\"hljs-built_in\"\u003ethen\u003c/span\u003e(\n        [cb](Try\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u0026#x26;\u0026#x26; t) {\n          \u003cspan class=\"hljs-comment\"\u003e// Now we have received the response from real calculator server\u003c/span\u003e\n          \u003cspan class=\"hljs-comment\"\u003e// respond to the client with the same result\u003c/span\u003e\n          cout \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\"Received response from other server\"\u003c/span\u003e \u0026#x3C;\u0026#x3C; endl;\n          cb.ptr-\u003e\u003cspan class=\"hljs-built_in\"\u003eresult\u003c/span\u003e(t.\u003cspan class=\"hljs-built_in\"\u003evalue\u003c/span\u003e());\n        });\n    });\n  }\n};\n\n\u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003emain\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e argc, \u003cspan class=\"hljs-type\"\u003echar\u003c/span\u003e **argv)\u003c/span\u003e \u003c/span\u003e{\n  \u003cspan class=\"hljs-comment\"\u003e// The code in the main function same as in previous example except\u003c/span\u003e\n  \u003cspan class=\"hljs-comment\"\u003e// the port number. This proxy calculator will listen on 8081. So the\u003c/span\u003e\n  \u003cspan class=\"hljs-comment\"\u003e// client will have to connect to 8081 now.\u003c/span\u003e\n  \u003cspan class=\"hljs-function\"\u003estd::shared_ptr\u0026#x3C;CalculatorSvc\u003e \u003cspan class=\"hljs-title\"\u003eptr\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e  CalculatorSvc())\u003c/span\u003e\u003c/span\u003e;\n  ThriftServer* s = \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-built_in\"\u003eThriftServer\u003c/span\u003e();\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetInterface\u003c/span\u003e(ptr);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetPort\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e8081\u003c/span\u003e);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003eserve\u003c/span\u003e();\n\n  \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eCompile the server_mid.cpp as\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-bash\"\u003eg++ -o server_mid server_mid.cpp gen-cpp2/Calculator.cpp gen-cpp2/calculator_constants.cpp gen-cpp2/calculator_types.cpp -std=c++11 -I gen-cpp -lboost_system -lpthread -lglog -lfolly -lthrift -lthriftcpp2\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eFrom the previous example, change the port number in client.cpp to 8081 and compile the client.\u003c/p\u003e\n\u003cp\u003eNow open 3 bash shells. From the first, run server from the 2nd, run server_mid then run client from the 3rd shell.\u003c/p\u003e\n\u003cp\u003eIf you want more explanation of why te-\u003erunInEventBaseThread was done, then refer to \u003ca href=\"/thrift/internals.html\"\u003eThrift internals\u003c/a\u003e.\u003c/p\u003e","prev":"A simple client server example","prevUrl":"/thrift/client_server.html","next":"Embedding http server inside thrift server","nextUrl":"/thrift/http.html","up":"up","upUrl":"/thrift/thrift.html"},"__N_SSG":true},"page":"/thrift/[slug]","query":{"slug":"client_server_server"},"buildId":"Uj0xLDHGjqNjg59NxkbrM","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>
