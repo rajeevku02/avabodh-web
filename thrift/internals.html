@@ -1,225 +1,115 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Thrift internals</title>
-    <meta name="author" content="Rajeev Kumar">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/3.1.0/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="/highlight/xcode.css">
-<script src="/highlight/highlight.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-
-  </head>
-  <body>
-    <div class="navbar navbar-default" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Avabodh</a>
-        </div> 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li  ><a href="/">Home</a></li>
-            <li  ><a href="/apps">Apps</a></li>
-            <li class="active" ><a href="/articles">Articles</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <h1 id="thirft-internals">Thirft internals</h1>
-<p><br />
-<strong>Warning</strong>: The content on this page is based on my understanding of thrift design by reading some parts of thrift source code. The content may go outdated in future if the thrift design changes. The thrift version at the time of writing this tutorial is 15.0</p>
-
-<p><br /></p>
-<h4 id="facebook-developers-love-threads">Facebook developers love threads!!</h4>
-<p>The first time I ran the <a href="/thrift/client_server.html">server example</a>, I was surprised to see that there are 12 threads (including the main thread) in the server process. I ran the server on a <a href="http://www.linode.com">linode</a> VM which had one virtual CPU.
-<br />
-Now let us change the server code little bit</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int main(int argc, char **argv) {
-  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
-  ThriftServer* s = new ThriftServer();
-  s-&gt;setNWorkerThreads(1);
-  s-&gt;setNPoolThreads(1);
-  s-&gt;setInterface(ptr);
-  s-&gt;setPort(8080);
-  s-&gt;serve();
-  return 0;
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="author" content="Rajeev Kumar" data-next-head=""/><title data-next-head="">Thrift internals | avabodh.com</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link rel="preload" href="/_next/static/chunks/a25c247ab5d3ddeb.css" as="style"/><link rel="stylesheet" href="/_next/static/chunks/a25c247ab5d3ddeb.css" data-n-g=""/><noscript data-n-css=""></noscript><script src="/_next/static/chunks/3c9ac7f6b5542fde.js" defer=""></script><script src="/_next/static/chunks/cc9693943f0cdf3d.js" defer=""></script><script src="/_next/static/chunks/bf6653fbb72adf1a.js" defer=""></script><script src="/_next/static/chunks/turbopack-b74f9d9dbe08115b.js" defer=""></script><script src="/_next/static/chunks/c7e7faf7cf2808e8.js" defer=""></script><script src="/_next/static/chunks/turbopack-0bc91ef7bfd7ed60.js" defer=""></script><script src="/_next/static/ejZJT-1Km5VhTXwIANlJg/_ssgManifest.js" defer=""></script><script src="/_next/static/ejZJT-1Km5VhTXwIANlJg/_buildManifest.js" defer=""></script></head><body class="antialiased"><div id="__next"><div class="min-h-screen flex flex-col bg-slate-50"><nav class="bg-slate-100 border-b border-slate-200 sticky top-0 z-50"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="text-slate-900 font-semibold text-base tracking-tight hover:text-slate-600 transition-colors" href="/">avabodh</a><div class="flex items-center space-x-1"><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/">Home</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100" href="/about/">About</a><a class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-900 bg-slate-100" href="/articles/">Articles</a></div></div></div></nav><main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10"><article class="article-content"><div><h1>Thirft internals</h1>
+<p><strong>Warning</strong>: The content on this page is based on my understanding of thrift design by reading some parts of thrift source code. The content may go outdated in future if the thrift design changes. The thrift version at the time of writing this tutorial is 15.0</p>
+<h4>Facebook developers love threads!!</h4>
+<p>The first time I ran the <a href="/thrift/client_server.html">server example</a>, I was surprised to see that there are 12 threads (including the main thread) in the server process. I ran the server on a <a href="http://www.linode.com">linode</a> VM which had one virtual CPU.</p>
+<p>Now let us change the server code little bit</p>
+<pre><code class="hljs language-scss">int <span class="hljs-selector-tag">main</span>(int argc, char **argv) {
+  std::shared_ptr&#x3C;CalculatorSvc> <span class="hljs-built_in">ptr</span>(new  <span class="hljs-built_in">CalculatorSvc</span>());
+  ThriftServer* s = new <span class="hljs-built_in">ThriftServer</span>();
+  s-><span class="hljs-built_in">setNWorkerThreads</span>(<span class="hljs-number">1</span>);
+  s-><span class="hljs-built_in">setNPoolThreads</span>(<span class="hljs-number">1</span>);
+  s-><span class="hljs-built_in">setInterface</span>(ptr);
+  s-><span class="hljs-built_in">setPort</span>(<span class="hljs-number">8080</span>);
+  s-><span class="hljs-built_in">serve</span>();
+  return <span class="hljs-number">0</span>;
 }
-</code></pre></div></div>
-
+</code></pre>
 <p>Even after this change, the number of threads are 12 in the server process. Seems that the cpp2 framework is not honoring the thread count parameters that we set.</p>
-
-<p><br />
-Before we go into the internal design of the thrift to understand the threading model, we should know the reason behind having so many threads. If you follow this <a href="https://github.com/facebook/folly/blob/master/folly/io/async/README.md">link (README)</a>, at the end of this readme file you will find <strong>Generic Multithreading Advice</strong>. This explains why having multiple threads is good for performance. At the same time it also states that if the number of threads is more than available CPU cores, then it degrades the performance.</p>
-
+<p>Before we go into the internal design of the thrift to understand the threading model, we should know the reason behind having so many threads. If you follow this <a href="https://github.com/facebook/folly/blob/master/folly/io/async/README.md">link (README)</a>, at the end of this readme file you will find <strong>Generic Multithreading Advice</strong>. This explains why having multiple threads is good for performance. At the same time it also states that if the number of threads is more than available CPU cores, then it degrades the performance.</p>
 <p><strong>If you are evaluating the thrift from a performance point of view, then you should be very careful about how many CPU cores you are evaluating on.</strong> To achieve the peak performance of the thrift, you should have the number of cores at least to the number threads the server process spawns.</p>
-
-<p><br /></p>
-<h4 id="inside-the-thrift-server">Inside the thrift server</h4>
+<h4>Inside the thrift server</h4>
 <p>This is based on the code inside <em>fbthrift/thrift/lib/cpp2/server/</em> folder. Some of the concepts used in the code are</p>
-
 <ul>
-  <li><strong>Thrift Server</strong>: This is implemented in ThriftServer class. This is the class that you instantiate from your main function. The main purpose of this class is to do initialization of various data structures then start listening on a socket. Once a connection is accepted, then the connection is not handled by ThriftServer itself, rather it is handed over to a thread from IOThreadPoolExecutor. The further communication on the accepted connection is done in the thread from IOThreadPoolExecutor.</li>
-  <li><strong>IOThreadPoolExecutor</strong>: This is a class defined in folly/experimental/wangle/concurrent. The ThriftServer class contains a member variable ioThreadPool_ of type IOThreadPoolExecutor. This class manages a pool of threads. Each thread in this pool runs an io event loop. When ThriftServer accepts a connection, then one thread from this pool is assigned to do further communication on the accepted connection. The code for handling new connection is in Cpp2Worker class. The number of threads in this thread pool can be controlled by calling ThriftServer.setNWorkerThreads(count).</li>
-  <li><strong>Cpp2Worker</strong>: The code in this class handles a new connection which is accepted by ThriftServer. This code is run by a thread from IOThreadPoolExecutor. Single Cpp2Worker can manages multiple socket connections. Each connection is represented by an instance of Cpp2Conection. So the Cpp2Worker contains a collection of Cpp2Connection instances. The request received on a connection is handled by code defined in Cpp2Connection.</li>
-  <li><strong>Cpp2Connection</strong>: A single Cpp2Connection handles a single socket connection. Any incoming request data on a socket is handled by Cpp2Connection::requestReceived function. This function calls Processor::process function for decoding the function ID and params and then calling the service function(for example add function in our first <a href="/thrift/client_server.html">example</a>)</li>
-  <li><strong>Processor</strong>: Processor is mostly generated code by the thrift compiler. Some part of the processor code is also present in thrift/lib/cpp2/async/AsyncProcessor.h. The processor code decodes the function ID and function argument from the data received from the socket then determines which service function (for example add function in our first <a href="/thrift/client_server.html">example</a>) to be called and calls that function. Based on a switch in the trift compiler, then the service function can be called in a separate thread. Please note that code of Cpp2Worker, Cpp2Connection and Processor runs in a thread from IOThreadPoolExecutor. If <strong><em>process_in_event_base</em></strong> flag is passed to the thrift compiler, then the service function is called in the same thread otherwise it is called on a separate thread. The other thread is picked from a thread pool which is managed by the ThreadManager class.</li>
-  <li><strong>ThreadManager</strong>: Thread manager manages pool of threads used for calling service function. The ThreadManager is a base class and there are various implementations of it. You can even set your own ThreadManager implementation in ThriftServer by calling setThreadManager function. The ThreadManager does not create thread itself, instead it uses ThreadFactory to create a new thread for the pool. ThriftServer::setNPoolThreads is meant to control the number of threads in the thread manager pool but does not seem to work.</li>
-  <li><strong>ThreadFactory</strong>: The thread factory is used to create thread for IOThreadPoolExecutor as well as ThreadManager. There are quite a few thread factories inside the thrift server to create threads. You can also provide your own implementation of the thread factory to thrift server.</li>
-  <li><strong>SaslThreadManager</strong>: The thrift provides <a href="http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer">Sasl</a> authentication mechanism. The authentication work is done in a separate thread and this thread is managed by SaslThreadManager. The Sasl authentication can be disabled by providing command line argument sasl_policy=disabled</li>
-  <li><strong>NumaThreadManager</strong>: If you do not provide any thread manager to the thrift server, then NumaThreadManager is used. The logic inside this thread manager is little complex. It is <a href="http://en.wikipedia.org/wiki/Non-uniform_memory_access">Numa</a> aware thread management. It also allows to define priority of server tasks. Actually it is the NumaThreadManager which does not honor the thread count set by <strong>ThriftServer::setNPoolThreads()</strong></li>
+<li><strong>Thrift Server</strong>: This is implemented in ThriftServer class. This is the class that you instantiate from your main function. The main purpose of this class is to do initialization of various data structures then start listening on a socket. Once a connection is accepted, then the connection is not handled by ThriftServer itself, rather it is handed over to a thread from IOThreadPoolExecutor. The further communication on the accepted connection is done in the thread from IOThreadPoolExecutor.</li>
+<li><strong>IOThreadPoolExecutor</strong>: This is a class defined in folly/experimental/wangle/concurrent. The ThriftServer class contains a member variable ioThreadPool_ of type IOThreadPoolExecutor. This class manages a pool of threads. Each thread in this pool runs an io event loop. When ThriftServer accepts a connection, then one thread from this pool is assigned to do further communication on the accepted connection. The code for handling new connection is in Cpp2Worker class. The number of threads in this thread pool can be controlled by calling ThriftServer.setNWorkerThreads(count).</li>
+<li><strong>Cpp2Worker</strong>: The code in this class handles a new connection which is accepted by ThriftServer. This code is run by a thread from IOThreadPoolExecutor. Single Cpp2Worker can manages multiple socket connections. Each connection is represented by an instance of Cpp2Conection. So the Cpp2Worker contains a collection of Cpp2Connection instances. The request received on a connection is handled by code defined in Cpp2Connection.</li>
+<li><strong>Cpp2Connection</strong>: A single Cpp2Connection handles a single socket connection. Any incoming request data on a socket is handled by Cpp2Connection::requestReceived function. This function calls Processor::process function for decoding the function ID and params and then calling the service function(for example add function in our first <a href="/thrift/client_server.html">example</a>)</li>
+<li><strong>Processor</strong>: Processor is mostly generated code by the thrift compiler. Some part of the processor code is also present in thrift/lib/cpp2/async/AsyncProcessor.h. The processor code decodes the function ID and function argument from the data received from the socket then determines which service function (for example add function in our first <a href="/thrift/client_server.html">example</a>) to be called and calls that function. Based on a switch in the trift compiler, then the service function can be called in a separate thread. Please note that code of Cpp2Worker, Cpp2Connection and Processor runs in a thread from IOThreadPoolExecutor. If <strong><em>process_in_event_base</em></strong> flag is passed to the thrift compiler, then the service function is called in the same thread otherwise it is called on a separate thread. The other thread is picked from a thread pool which is managed by the ThreadManager class.</li>
+<li><strong>ThreadManager</strong>: Thread manager manages pool of threads used for calling service function. The ThreadManager is a base class and there are various implementations of it. You can even set your own ThreadManager implementation in ThriftServer by calling setThreadManager function. The ThreadManager does not create thread itself, instead it uses ThreadFactory to create a new thread for the pool. ThriftServer::setNPoolThreads is meant to control the number of threads in the thread manager pool but does not seem to work.</li>
+<li><strong>ThreadFactory</strong>: The thread factory is used to create thread for IOThreadPoolExecutor as well as ThreadManager. There are quite a few thread factories inside the thrift server to create threads. You can also provide your own implementation of the thread factory to thrift server.</li>
+<li><strong>SaslThreadManager</strong>: The thrift provides <a href="http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer">Sasl</a> authentication mechanism. The authentication work is done in a separate thread and this thread is managed by SaslThreadManager. The Sasl authentication can be disabled by providing command line argument sasl_policy=disabled</li>
+<li><strong>NumaThreadManager</strong>: If you do not provide any thread manager to the thrift server, then NumaThreadManager is used. The logic inside this thread manager is little complex. It is <a href="http://en.wikipedia.org/wiki/Non-uniform_memory_access">Numa</a> aware thread management. It also allows to define priority of server tasks. Actually it is the NumaThreadManager which does not honor the thread count set by <strong>ThriftServer::setNPoolThreads()</strong></li>
 </ul>
-
-<p><br />
-Some of the above concepts can be expressed by this diagram:</p>
-
-<p><img src="/images/thrift/thrift1.png" alt="Thrift internal diagram" style="width: 450px;" />
-<img src="/images/thrift/thrift2.png" alt="Thrift internal diagram" style="width: 450px;" /></p>
-
-<p><br /></p>
-<h4 id="i-want-to-control-the-number-of-threads-in-my-server-process">I want to control the number of threads in my server process</h4>
-<p><br />
-There are mainly three types of thread in ThriftServer. They are:</p>
-
-<p><img src="/images/thrift/thrift4.png" alt="Thrift internal diagram" style="width: 500px;" /></p>
-
+<p>Some of the above concepts can be expressed by this diagram:</p>
+<img src="/images/thrift/thrift1.png" alt="Thrift internal diagram" style="width: 450px;"/>
+<img src="/images/thrift/thrift2.png" alt="Thrift internal diagram" style="width: 450px;"/>
+<h4>I want to control the number of threads in my server process</h4>
+<p>There are mainly three types of thread in ThriftServer. They are:</p>
+<img src="/images/thrift/thrift4.png" alt="Thrift internal diagram" style="width: 500px;"/>
 <p>The ThriftServer provides two functions to control the number of threads: setNWorkerThreads and setNPoolThreads. The setNWorkerThreads works fine but the NumaThreadManager does not honor the setNPoolThreads. There are various possibilities to fix this</p>
-
 <ol>
-  <li>Fix NumaThreadManager. Afterall, thrift is open source. Do it if you have time.</li>
-  <li>Provide your own implementation of ThreadManager. Probably you should not be doing this.</li>
-  <li>Tell ThriftServer to use SimpleThreadManager. The SimpleThreadManager is defined inside the thrift code but it is not smart thread manager as NumaThreadManager</li>
-  <li>Run the service function in the IOThreadPoolExecutor thread itself rather than in a separate thread. And you can control the number of threads in IOThreadPoolExecutor.</li>
+<li>Fix NumaThreadManager. Afterall, thrift is open source. Do it if you have time.</li>
+<li>Provide your own implementation of ThreadManager. Probably you should not be doing this.</li>
+<li>Tell ThriftServer to use SimpleThreadManager. The SimpleThreadManager is defined inside the thrift code but it is not smart thread manager as NumaThreadManager</li>
+<li>Run the service function in the IOThreadPoolExecutor thread itself rather than in a separate thread. And you can control the number of threads in IOThreadPoolExecutor.</li>
 </ol>
-
-<p><br />
-Let us see how #4 can be used
+<p>Let us see how #4 can be used
 From the <a href="thrift/client_server.html">first example</a>, compile the calculator.thrift as</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python -m thrift_compiler.main --gen cpp2:process_in_event_base calculator.thrift
-</code></pre></div></div>
-
+<pre><code class="hljs language-css">python -m thrift_compiler<span class="hljs-selector-class">.main</span> <span class="hljs-attr">--gen</span> cpp2:process_in_event_base calculator.thrift
+</code></pre>
 <p>Then change the server code to</p>
+<pre><code class="hljs language-arduino"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;iostream></span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"gen-cpp2/Calculator.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;thrift/lib/cpp2/server/ThriftServer.h></span></span>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;iostream&gt;
-#include "gen-cpp2/Calculator.h"
-#include &lt;thrift/lib/cpp2/server/ThriftServer.h&gt;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> apache::thrift;
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> example::cpp2;
 
-using namespace std;
-using namespace apache::thrift;
-using namespace example::cpp2;
+<span class="hljs-built_in">DECLARE_string</span>(sasl_policy);
 
-DECLARE_string(sasl_policy);
-
-class CalculatorSvc : public CalculatorSvIf
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CalculatorSvc</span> : <span class="hljs-keyword">public</span> CalculatorSvIf
 {
- public:
-  virtual ~CalculatorSvc() {}
-  void async_eb_add(
-    std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
-    int32_t num1,
-    int32_t num2) {
-    callback-&gt;result(num1 + num2);
+ <span class="hljs-keyword">public</span>:
+  <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">CalculatorSvc</span>() {}
+  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">async_eb_add</span><span class="hljs-params">(
+    std::unique_ptr&#x3C;apache::thrift::HandlerCallback&#x3C;<span class="hljs-type">int64_t</span>>> callback,
+    <span class="hljs-type">int32_t</span> num1,
+    <span class="hljs-type">int32_t</span> num2)</span> </span>{
+    callback-><span class="hljs-built_in">result</span>(num1 + num2);
   }
 };
 
-int main(int argc, char **argv) {
-  std::shared_ptr&lt;CalculatorSvc&gt; ptr(new  CalculatorSvc());
-  // Disable Sasl. It can be done on commandline too
-  FLAGS_sasl_policy = "disabled";
-  ThriftServer* s = new ThriftServer();
-  s-&gt;setNWorkerThreads(1);
-  // Tell thrift server to not use NumaThreadManager
-  s-&gt;setThreadManager(
-    apache::thrift::concurrency::ThreadManager::newSimpleThreadManager());
-  s-&gt;setInterface(ptr);
-  s-&gt;setPort(8080);
-  s-&gt;serve();
-  return 0;
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span> </span>{
+  <span class="hljs-function">std::shared_ptr&#x3C;CalculatorSvc> <span class="hljs-title">ptr</span><span class="hljs-params">(<span class="hljs-keyword">new</span>  CalculatorSvc())</span></span>;
+  <span class="hljs-comment">// Disable Sasl. It can be done on commandline too</span>
+  FLAGS_sasl_policy = <span class="hljs-string">"disabled"</span>;
+  ThriftServer* s = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ThriftServer</span>();
+  s-><span class="hljs-built_in">setNWorkerThreads</span>(<span class="hljs-number">1</span>);
+  <span class="hljs-comment">// Tell thrift server to not use NumaThreadManager</span>
+  s-><span class="hljs-built_in">setThreadManager</span>(
+    apache::thrift::concurrency::ThreadManager::<span class="hljs-built_in">newSimpleThreadManager</span>());
+  s-><span class="hljs-built_in">setInterface</span>(ptr);
+  s-><span class="hljs-built_in">setPort</span>(<span class="hljs-number">8080</span>);
+  s-><span class="hljs-built_in">serve</span>();
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 }
-</code></pre></div></div>
-
+</code></pre>
 <p>Compile the server as done previously. And run the server. Now the server process has only two threads including the main thread. Now we do not have any thread manager thread. There is a main thread on which the thrift server listens and another IOThreadPoolExecutor thread which receives the request and calls the service function in the same thread. If you want, you can increase the number of threads in IOThreadPoolExecutor.
 Also Sasl is disabled in this code. You can enable it if you need it. If enabled, it will create a separate thread.</p>
-
-<p><br /></p>
-<h4 id="simplifying-the-server-to-server-communication-example">Simplifying the server to server communication example</h4>
+<h4>Simplifying the server to server communication example</h4>
 <p>In <a href="/thrift/client_server_server.html">server to server communication example</a>, we had to run code in a separate thread. Now because we are running the service function in the IOThreadPoolExecutor thread, we do not need to delegate the work in the other thread.
 Now remove the async_tm_add function from that code and add this function</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void async_eb_add(
-  std::unique_ptr&lt;apache::thrift::HandlerCallback&lt;int64_t&gt;&gt; callback,
-  int32_t num1,
-  int32_t num2)
+<pre><code class="hljs language-c"><span class="hljs-type">void</span> <span class="hljs-title function_">async_eb_add</span><span class="hljs-params">(
+  <span class="hljs-built_in">std</span>::<span class="hljs-built_in">unique_ptr</span>&#x3C;apache::thrift::HandlerCallback&#x3C;<span class="hljs-type">int64_t</span>>> callback,
+  <span class="hljs-type">int32_t</span> num1,
+  <span class="hljs-type">int32_t</span> num2)</span>
 {
-  cout &lt;&lt; "Got async request " &lt;&lt; num1 &lt;&lt; " + " &lt;&lt; num2 &lt;&lt; endl;
-  CallbackWrapper cb(callback);
-  CalculatorAsyncClient* client = getClient(cb.ptr-&gt;getEventBase());;
-  // Make the add function call on the real server
-  folly::wangle::Future&lt;int64_t&gt; f = client-&gt;future_add(num1, num2);
+  <span class="hljs-built_in">cout</span> &#x3C;&#x3C; <span class="hljs-string">"Got async request "</span> &#x3C;&#x3C; num1 &#x3C;&#x3C; <span class="hljs-string">" + "</span> &#x3C;&#x3C; num2 &#x3C;&#x3C; <span class="hljs-built_in">endl</span>;
+  CallbackWrapper <span class="hljs-title function_">cb</span><span class="hljs-params">(callback)</span>;
+  CalculatorAsyncClient* client = getClient(cb.ptr->getEventBase());;
+  <span class="hljs-comment">// Make the add function call on the real server</span>
+  folly::wangle::Future&#x3C;<span class="hljs-type">int64_t</span>> f = client->future_add(num1, num2);
   f.then(
-      [cb](Try&lt;int64_t&gt;&amp;&amp; t) {
-      // Now we have received the response from real calculator server
-      // respond to the client with the same result
-      cout &lt;&lt; "Received response from other server" &lt;&lt; endl;
-      cb.ptr-&gt;result(t.value());
+      [cb](Try&#x3C;<span class="hljs-type">int64_t</span>>&#x26;&#x26; t) {
+      <span class="hljs-comment">// Now we have received the response from real calculator server</span>
+      <span class="hljs-comment">// respond to the client with the same result</span>
+      <span class="hljs-built_in">cout</span> &#x3C;&#x3C; <span class="hljs-string">"Received response from other server"</span> &#x3C;&#x3C; <span class="hljs-built_in">endl</span>;
+      cb.ptr->result(t.value());
       });
 }
-</code></pre></div></div>
-
-
-    <hr>
-    <div class="row">
-      <div class="col-md-4 align_left">
-       
-       <a href="/thrift/lang.html">&#x2039 Thrift language</a>
-       
-      </div>
-      <div class="col-md-4 align_center">
-       
-       <a href="/thrift/thrift.html">up</a>
-       
-      </div>
-      <div class="col-md-4 align_right">
-       
-       <a href="/thrift/conclusion.html">Conclusion &#x203a</a>
-       
-      </div>
-    </div>
-    <hr>
-    <strong>Do you collaborate using whiteboard? Please try <a href="https://lekh.app">Lekh Board - An Intelligent Collaborate Whiteboard App</a></strong>
-
-
-      <br><br><br>
-      <div class="panel-footer"><small>Copyright &copy; 2012 www.avabodh.com. All rights reserved.</small></div>
-    </div>
-    <script src="/jquery-1.10.2.min.js"></script>
-    <script src="/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    
-    <!-- Default Statcounter code for Avabodh
-      https://www.avabodh.com -->
-    <script type="text/javascript">
-      var sc_project = 6460274;
-      var sc_invisible = 1;
-      var sc_security = "a8560755";
-    </script>
-    <script type="text/javascript" src="https://www.statcounter.com/counter/counter.js" async></script>
-    <noscript>
-      <div class="statcounter"><a title="Web Analytics" href="https://statcounter.com/" target="_blank"><img
-            class="statcounter" src="https://c.statcounter.com/6460274/0/a8560755/1/" alt="Web Analytics"
-            referrerPolicy="no-referrer-when-downgrade"></a></div>
-    </noscript>
-    <!-- End of Statcounter Code -->
-
-  </body>
-</html>
+</code></pre></div></article><hr class="my-6 border-gray-200"/><div class="flex items-center justify-between text-sm"><div class="w-1/3 text-left"><a href="/thrift/lang.html" class="inline-flex items-center gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>‹</span><span>Thrift language</span></a></div><div class="w-1/3 text-center"><a href="/thrift/thrift.html" class="text-blue-700 hover:text-blue-500 font-medium">up</a></div><div class="w-1/3 text-right"><a href="/thrift/conclusion.html" class="inline-flex items-center justify-end gap-1 text-blue-700 hover:text-blue-500 font-medium"><span>Conclusion</span><span>›</span></a></div></div><hr class="my-6 border-gray-200"/><div class="mt-6 space-y-3 text-sm text-gray-700"><p><strong>Do you collaborate using whiteboard? Please try<!-- --> </strong><a href="https://lekh.app" class="text-blue-700 hover:text-blue-500 underline" target="_blank" rel="noopener noreferrer">Lekh App - An Intelligent Collaborative Whiteboard App</a></p></div></main><footer class="bg-slate-100 border-t border-slate-200"><div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5"><p class="text-sm text-slate-500 text-center">© 2012 avabodh.com — All rights reserved.</p></div></footer></div><script>
+            var sc_project=6460274;
+            var sc_invisible=1;
+            var sc_security="a8560755";
+          </script><script async="" src="https://www.statcounter.com/counter/counter.js"></script></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"title":"Thrift internals","content":"\u003ch1\u003eThirft internals\u003c/h1\u003e\n\u003cp\u003e\u003cstrong\u003eWarning\u003c/strong\u003e: The content on this page is based on my understanding of thrift design by reading some parts of thrift source code. The content may go outdated in future if the thrift design changes. The thrift version at the time of writing this tutorial is 15.0\u003c/p\u003e\n\u003ch4\u003eFacebook developers love threads!!\u003c/h4\u003e\n\u003cp\u003eThe first time I ran the \u003ca href=\"/thrift/client_server.html\"\u003eserver example\u003c/a\u003e, I was surprised to see that there are 12 threads (including the main thread) in the server process. I ran the server on a \u003ca href=\"http://www.linode.com\"\u003elinode\u003c/a\u003e VM which had one virtual CPU.\u003c/p\u003e\n\u003cp\u003eNow let us change the server code little bit\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-scss\"\u003eint \u003cspan class=\"hljs-selector-tag\"\u003emain\u003c/span\u003e(int argc, char **argv) {\n  std::shared_ptr\u0026#x3C;CalculatorSvc\u003e \u003cspan class=\"hljs-built_in\"\u003eptr\u003c/span\u003e(new  \u003cspan class=\"hljs-built_in\"\u003eCalculatorSvc\u003c/span\u003e());\n  ThriftServer* s = new \u003cspan class=\"hljs-built_in\"\u003eThriftServer\u003c/span\u003e();\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetNWorkerThreads\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e1\u003c/span\u003e);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetNPoolThreads\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e1\u003c/span\u003e);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetInterface\u003c/span\u003e(ptr);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetPort\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e8080\u003c/span\u003e);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003eserve\u003c/span\u003e();\n  return \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eEven after this change, the number of threads are 12 in the server process. Seems that the cpp2 framework is not honoring the thread count parameters that we set.\u003c/p\u003e\n\u003cp\u003eBefore we go into the internal design of the thrift to understand the threading model, we should know the reason behind having so many threads. If you follow this \u003ca href=\"https://github.com/facebook/folly/blob/master/folly/io/async/README.md\"\u003elink (README)\u003c/a\u003e, at the end of this readme file you will find \u003cstrong\u003eGeneric Multithreading Advice\u003c/strong\u003e. This explains why having multiple threads is good for performance. At the same time it also states that if the number of threads is more than available CPU cores, then it degrades the performance.\u003c/p\u003e\n\u003cp\u003e\u003cstrong\u003eIf you are evaluating the thrift from a performance point of view, then you should be very careful about how many CPU cores you are evaluating on.\u003c/strong\u003e To achieve the peak performance of the thrift, you should have the number of cores at least to the number threads the server process spawns.\u003c/p\u003e\n\u003ch4\u003eInside the thrift server\u003c/h4\u003e\n\u003cp\u003eThis is based on the code inside \u003cem\u003efbthrift/thrift/lib/cpp2/server/\u003c/em\u003e folder. Some of the concepts used in the code are\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eThrift Server\u003c/strong\u003e: This is implemented in ThriftServer class. This is the class that you instantiate from your main function. The main purpose of this class is to do initialization of various data structures then start listening on a socket. Once a connection is accepted, then the connection is not handled by ThriftServer itself, rather it is handed over to a thread from IOThreadPoolExecutor. The further communication on the accepted connection is done in the thread from IOThreadPoolExecutor.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eIOThreadPoolExecutor\u003c/strong\u003e: This is a class defined in folly/experimental/wangle/concurrent. The ThriftServer class contains a member variable ioThreadPool_ of type IOThreadPoolExecutor. This class manages a pool of threads. Each thread in this pool runs an io event loop. When ThriftServer accepts a connection, then one thread from this pool is assigned to do further communication on the accepted connection. The code for handling new connection is in Cpp2Worker class. The number of threads in this thread pool can be controlled by calling ThriftServer.setNWorkerThreads(count).\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eCpp2Worker\u003c/strong\u003e: The code in this class handles a new connection which is accepted by ThriftServer. This code is run by a thread from IOThreadPoolExecutor. Single Cpp2Worker can manages multiple socket connections. Each connection is represented by an instance of Cpp2Conection. So the Cpp2Worker contains a collection of Cpp2Connection instances. The request received on a connection is handled by code defined in Cpp2Connection.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eCpp2Connection\u003c/strong\u003e: A single Cpp2Connection handles a single socket connection. Any incoming request data on a socket is handled by Cpp2Connection::requestReceived function. This function calls Processor::process function for decoding the function ID and params and then calling the service function(for example add function in our first \u003ca href=\"/thrift/client_server.html\"\u003eexample\u003c/a\u003e)\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eProcessor\u003c/strong\u003e: Processor is mostly generated code by the thrift compiler. Some part of the processor code is also present in thrift/lib/cpp2/async/AsyncProcessor.h. The processor code decodes the function ID and function argument from the data received from the socket then determines which service function (for example add function in our first \u003ca href=\"/thrift/client_server.html\"\u003eexample\u003c/a\u003e) to be called and calls that function. Based on a switch in the trift compiler, then the service function can be called in a separate thread. Please note that code of Cpp2Worker, Cpp2Connection and Processor runs in a thread from IOThreadPoolExecutor. If \u003cstrong\u003e\u003cem\u003eprocess_in_event_base\u003c/em\u003e\u003c/strong\u003e flag is passed to the thrift compiler, then the service function is called in the same thread otherwise it is called on a separate thread. The other thread is picked from a thread pool which is managed by the ThreadManager class.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eThreadManager\u003c/strong\u003e: Thread manager manages pool of threads used for calling service function. The ThreadManager is a base class and there are various implementations of it. You can even set your own ThreadManager implementation in ThriftServer by calling setThreadManager function. The ThreadManager does not create thread itself, instead it uses ThreadFactory to create a new thread for the pool. ThriftServer::setNPoolThreads is meant to control the number of threads in the thread manager pool but does not seem to work.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eThreadFactory\u003c/strong\u003e: The thread factory is used to create thread for IOThreadPoolExecutor as well as ThreadManager. There are quite a few thread factories inside the thrift server to create threads. You can also provide your own implementation of the thread factory to thrift server.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eSaslThreadManager\u003c/strong\u003e: The thrift provides \u003ca href=\"http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer\"\u003eSasl\u003c/a\u003e authentication mechanism. The authentication work is done in a separate thread and this thread is managed by SaslThreadManager. The Sasl authentication can be disabled by providing command line argument sasl_policy=disabled\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eNumaThreadManager\u003c/strong\u003e: If you do not provide any thread manager to the thrift server, then NumaThreadManager is used. The logic inside this thread manager is little complex. It is \u003ca href=\"http://en.wikipedia.org/wiki/Non-uniform_memory_access\"\u003eNuma\u003c/a\u003e aware thread management. It also allows to define priority of server tasks. Actually it is the NumaThreadManager which does not honor the thread count set by \u003cstrong\u003eThriftServer::setNPoolThreads()\u003c/strong\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eSome of the above concepts can be expressed by this diagram:\u003c/p\u003e\n\u003cimg src=\"/images/thrift/thrift1.png\" alt=\"Thrift internal diagram\" style=\"width: 450px;\"/\u003e\n\u003cimg src=\"/images/thrift/thrift2.png\" alt=\"Thrift internal diagram\" style=\"width: 450px;\"/\u003e\n\u003ch4\u003eI want to control the number of threads in my server process\u003c/h4\u003e\n\u003cp\u003eThere are mainly three types of thread in ThriftServer. They are:\u003c/p\u003e\n\u003cimg src=\"/images/thrift/thrift4.png\" alt=\"Thrift internal diagram\" style=\"width: 500px;\"/\u003e\n\u003cp\u003eThe ThriftServer provides two functions to control the number of threads: setNWorkerThreads and setNPoolThreads. The setNWorkerThreads works fine but the NumaThreadManager does not honor the setNPoolThreads. There are various possibilities to fix this\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003eFix NumaThreadManager. Afterall, thrift is open source. Do it if you have time.\u003c/li\u003e\n\u003cli\u003eProvide your own implementation of ThreadManager. Probably you should not be doing this.\u003c/li\u003e\n\u003cli\u003eTell ThriftServer to use SimpleThreadManager. The SimpleThreadManager is defined inside the thrift code but it is not smart thread manager as NumaThreadManager\u003c/li\u003e\n\u003cli\u003eRun the service function in the IOThreadPoolExecutor thread itself rather than in a separate thread. And you can control the number of threads in IOThreadPoolExecutor.\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003eLet us see how #4 can be used\nFrom the \u003ca href=\"thrift/client_server.html\"\u003efirst example\u003c/a\u003e, compile the calculator.thrift as\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-css\"\u003epython -m thrift_compiler\u003cspan class=\"hljs-selector-class\"\u003e.main\u003c/span\u003e \u003cspan class=\"hljs-attr\"\u003e--gen\u003c/span\u003e cpp2:process_in_event_base calculator.thrift\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eThen change the server code to\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-arduino\"\u003e\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;iostream\u003e\u003c/span\u003e\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\"gen-cpp2/Calculator.h\"\u003c/span\u003e\u003c/span\u003e\n\u003cspan class=\"hljs-meta\"\u003e#\u003cspan class=\"hljs-keyword\"\u003einclude\u003c/span\u003e \u003cspan class=\"hljs-string\"\u003e\u0026#x3C;thrift/lib/cpp2/server/ThriftServer.h\u003e\u003c/span\u003e\u003c/span\u003e\n\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e std;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e apache::thrift;\n\u003cspan class=\"hljs-keyword\"\u003eusing\u003c/span\u003e \u003cspan class=\"hljs-keyword\"\u003enamespace\u003c/span\u003e example::cpp2;\n\n\u003cspan class=\"hljs-built_in\"\u003eDECLARE_string\u003c/span\u003e(sasl_policy);\n\n\u003cspan class=\"hljs-keyword\"\u003eclass\u003c/span\u003e \u003cspan class=\"hljs-title class_\"\u003eCalculatorSvc\u003c/span\u003e : \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e CalculatorSvIf\n{\n \u003cspan class=\"hljs-keyword\"\u003epublic\u003c/span\u003e:\n  \u003cspan class=\"hljs-keyword\"\u003evirtual\u003c/span\u003e ~\u003cspan class=\"hljs-built_in\"\u003eCalculatorSvc\u003c/span\u003e() {}\n  \u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003easync_eb_add\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\n    std::unique_ptr\u0026#x3C;apache::thrift::HandlerCallback\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u003e callback,\n    \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num1,\n    \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num2)\u003c/span\u003e \u003c/span\u003e{\n    callback-\u003e\u003cspan class=\"hljs-built_in\"\u003eresult\u003c/span\u003e(num1 + num2);\n  }\n};\n\n\u003cspan class=\"hljs-function\"\u003e\u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e \u003cspan class=\"hljs-title\"\u003emain\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\u003cspan class=\"hljs-type\"\u003eint\u003c/span\u003e argc, \u003cspan class=\"hljs-type\"\u003echar\u003c/span\u003e **argv)\u003c/span\u003e \u003c/span\u003e{\n  \u003cspan class=\"hljs-function\"\u003estd::shared_ptr\u0026#x3C;CalculatorSvc\u003e \u003cspan class=\"hljs-title\"\u003eptr\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e  CalculatorSvc())\u003c/span\u003e\u003c/span\u003e;\n  \u003cspan class=\"hljs-comment\"\u003e// Disable Sasl. It can be done on commandline too\u003c/span\u003e\n  FLAGS_sasl_policy = \u003cspan class=\"hljs-string\"\u003e\"disabled\"\u003c/span\u003e;\n  ThriftServer* s = \u003cspan class=\"hljs-keyword\"\u003enew\u003c/span\u003e \u003cspan class=\"hljs-built_in\"\u003eThriftServer\u003c/span\u003e();\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetNWorkerThreads\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e1\u003c/span\u003e);\n  \u003cspan class=\"hljs-comment\"\u003e// Tell thrift server to not use NumaThreadManager\u003c/span\u003e\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetThreadManager\u003c/span\u003e(\n    apache::thrift::concurrency::ThreadManager::\u003cspan class=\"hljs-built_in\"\u003enewSimpleThreadManager\u003c/span\u003e());\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetInterface\u003c/span\u003e(ptr);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003esetPort\u003c/span\u003e(\u003cspan class=\"hljs-number\"\u003e8080\u003c/span\u003e);\n  s-\u003e\u003cspan class=\"hljs-built_in\"\u003eserve\u003c/span\u003e();\n  \u003cspan class=\"hljs-keyword\"\u003ereturn\u003c/span\u003e \u003cspan class=\"hljs-number\"\u003e0\u003c/span\u003e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eCompile the server as done previously. And run the server. Now the server process has only two threads including the main thread. Now we do not have any thread manager thread. There is a main thread on which the thrift server listens and another IOThreadPoolExecutor thread which receives the request and calls the service function in the same thread. If you want, you can increase the number of threads in IOThreadPoolExecutor.\nAlso Sasl is disabled in this code. You can enable it if you need it. If enabled, it will create a separate thread.\u003c/p\u003e\n\u003ch4\u003eSimplifying the server to server communication example\u003c/h4\u003e\n\u003cp\u003eIn \u003ca href=\"/thrift/client_server_server.html\"\u003eserver to server communication example\u003c/a\u003e, we had to run code in a separate thread. Now because we are running the service function in the IOThreadPoolExecutor thread, we do not need to delegate the work in the other thread.\nNow remove the async_tm_add function from that code and add this function\u003c/p\u003e\n\u003cpre\u003e\u003ccode class=\"hljs language-c\"\u003e\u003cspan class=\"hljs-type\"\u003evoid\u003c/span\u003e \u003cspan class=\"hljs-title function_\"\u003easync_eb_add\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(\n  \u003cspan class=\"hljs-built_in\"\u003estd\u003c/span\u003e::\u003cspan class=\"hljs-built_in\"\u003eunique_ptr\u003c/span\u003e\u0026#x3C;apache::thrift::HandlerCallback\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u003e callback,\n  \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num1,\n  \u003cspan class=\"hljs-type\"\u003eint32_t\u003c/span\u003e num2)\u003c/span\u003e\n{\n  \u003cspan class=\"hljs-built_in\"\u003ecout\u003c/span\u003e \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\"Got async request \"\u003c/span\u003e \u0026#x3C;\u0026#x3C; num1 \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\" + \"\u003c/span\u003e \u0026#x3C;\u0026#x3C; num2 \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-built_in\"\u003eendl\u003c/span\u003e;\n  CallbackWrapper \u003cspan class=\"hljs-title function_\"\u003ecb\u003c/span\u003e\u003cspan class=\"hljs-params\"\u003e(callback)\u003c/span\u003e;\n  CalculatorAsyncClient* client = getClient(cb.ptr-\u003egetEventBase());;\n  \u003cspan class=\"hljs-comment\"\u003e// Make the add function call on the real server\u003c/span\u003e\n  folly::wangle::Future\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e f = client-\u003efuture_add(num1, num2);\n  f.then(\n      [cb](Try\u0026#x3C;\u003cspan class=\"hljs-type\"\u003eint64_t\u003c/span\u003e\u003e\u0026#x26;\u0026#x26; t) {\n      \u003cspan class=\"hljs-comment\"\u003e// Now we have received the response from real calculator server\u003c/span\u003e\n      \u003cspan class=\"hljs-comment\"\u003e// respond to the client with the same result\u003c/span\u003e\n      \u003cspan class=\"hljs-built_in\"\u003ecout\u003c/span\u003e \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-string\"\u003e\"Received response from other server\"\u003c/span\u003e \u0026#x3C;\u0026#x3C; \u003cspan class=\"hljs-built_in\"\u003eendl\u003c/span\u003e;\n      cb.ptr-\u003eresult(t.value());\n      });\n}\n\u003c/code\u003e\u003c/pre\u003e","prev":"Thrift language","prevUrl":"/thrift/lang.html","next":"Conclusion","nextUrl":"/thrift/conclusion.html","up":"up","upUrl":"/thrift/thrift.html"},"__N_SSG":true},"page":"/thrift/[slug]","query":{"slug":"internals"},"buildId":"ejZJT-1Km5VhTXwIANlJg","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>
